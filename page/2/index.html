@@ -249,6 +249,135 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/01/20/Nginx-Tomcat-Load-Balance/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="AndyKyuo">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/me.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="軟體就是一個大坑">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/01/20/Nginx-Tomcat-Load-Balance/" itemprop="url">Nginx + Tomcat Load Balance</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2018-01-20T23:29:43+08:00">
+                2018-01-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>今天要來給大家介紹Nginx與Tomcat如何做Load Balance呢?</p>
+<p>在這邊大家一定會想到Apache，沒錯! Apache也能使用proxy、mod_jk達到相同效果，但Apache當Load Balance Server能力並沒有Nginx還要快。那麼說Apache功能就沒了嗎?別忘記Apache功能方面比Nginx多，若今天只需要一台Load Balance Server的話，那麼可以考慮Nginx。</p>
+<p>老實說這也是我第一次使用Nginx，單由設定proxy功能來看，Nginx相對簡單呢!話不多說，來看看我的步驟。</p>
+<h1 id="Nginx-Setting"><a href="#Nginx-Setting" class="headerlink" title="Nginx Setting"></a>Nginx Setting</h1><h2 id="Step-1-Install-Nginx"><a href="#Step-1-Install-Nginx" class="headerlink" title="Step 1. Install Nginx"></a>Step 1. Install Nginx</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">yum install epel-release</span><br><span class="line">yum install nginx</span><br></pre></td></tr></table></figure>
+<h2 id="Step-2-Open-Firewall"><a href="#Step-2-Open-Firewall" class="headerlink" title="Step 2. Open Firewall"></a>Step 2. Open Firewall</h2><p>基本上linux 0~1023的埠號都是有定義的，如下顯示的http與https分別代表80、443等兩個埠號。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">firewall-cmd --permanent --zone=public --add-service=http </span><br><span class="line">firewall-cmd --permanent --zone=public --add-service=https</span><br><span class="line">firewall-cmd --reload</span><br></pre></td></tr></table></figure></p>
+<h2 id="Step-3-Start-Nginx"><a href="#Step-3-Start-Nginx" class="headerlink" title="Step 3. Start Nginx"></a>Step 3. Start Nginx</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">systemctl enable nginx</span><br><span class="line">systemctl start nginx</span><br></pre></td></tr></table></figure>
+<h2 id="Step-4-Setting-nginx-conf"><a href="#Step-4-Setting-nginx-conf" class="headerlink" title="Step 4. Setting nginx.conf"></a>Step 4. Setting nginx.conf</h2><p>我們可以修改/etc/nginx/nginx.conf設定，來達到Load Balance效果，基本上大家只需要專注在upstream以及server這兩個標籤的設定即可。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"># For more information on configuration, see:</span><br><span class="line">#   * Official English Documentation: http://nginx.org/en/docs/</span><br><span class="line">#   * Official Russian Documentation: http://nginx.org/ru/docs/</span><br><span class="line"></span><br><span class="line">user nginx;</span><br><span class="line">worker_processes auto;</span><br><span class="line">error_log /var/log/nginx/error.log;</span><br><span class="line">pid /run/nginx.pid;</span><br><span class="line"></span><br><span class="line"># Load dynamic modules. See /usr/share/nginx/README.dynamic.</span><br><span class="line">include /usr/share/nginx/modules/*.conf;</span><br><span class="line"></span><br><span class="line">events &#123;</span><br><span class="line">    worker_connections 1024;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">http &#123;</span><br><span class="line">    log_format  main  &apos;$remote_addr - $remote_user [$time_local] &quot;$request&quot; &apos;</span><br><span class="line">                      &apos;$status $body_bytes_sent &quot;$http_referer&quot; &apos;</span><br><span class="line">                      &apos;&quot;$http_user_agent&quot; &quot;$http_x_forwarded_for&quot;&apos;;</span><br><span class="line"></span><br><span class="line">    access_log  /var/log/nginx/access.log  main;</span><br><span class="line"></span><br><span class="line">    sendfile            on;</span><br><span class="line">    tcp_nopush          on;</span><br><span class="line">    tcp_nodelay         on;</span><br><span class="line">    keepalive_timeout   65;</span><br><span class="line">    types_hash_max_size 2048;</span><br><span class="line"></span><br><span class="line">    include             /etc/nginx/mime.types;</span><br><span class="line">    default_type        application/octet-stream;</span><br><span class="line"></span><br><span class="line">    # Load modular configuration files from the /etc/nginx/conf.d directory.</span><br><span class="line">    # See http://nginx.org/en/docs/ngx_core_module.html#include</span><br><span class="line">    # for more information.</span><br><span class="line">    include /etc/nginx/conf.d/*.conf;</span><br><span class="line">    </span><br><span class="line">    upstream cluster_server &#123;</span><br><span class="line">        server 192.168.56.102:8080;</span><br><span class="line">            server 192.168.56.103:8080;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    server &#123;</span><br><span class="line">        listen       80 default_server;</span><br><span class="line">        listen       [::]:80 default_server;</span><br><span class="line">        server_name  tomcat.cluster.com;</span><br><span class="line">        root         /usr/share/nginx/html;</span><br><span class="line"></span><br><span class="line">        # Load configuration files for the default server block.</span><br><span class="line">        include /etc/nginx/default.d/*.conf;</span><br><span class="line"></span><br><span class="line">        location / &#123;</span><br><span class="line">        proxy_pass http://cluster_server;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        error_page 404 /404.html;</span><br><span class="line">            location = /40x.html &#123;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        error_page 500 502 503 504 /50x.html;</span><br><span class="line">            location = /50x.html &#123;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="Step-5-Proxy-Permission-denied"><a href="#Step-5-Proxy-Permission-denied" class="headerlink" title="Step 5. Proxy Permission denied"></a>Step 5. Proxy Permission denied</h2><p>小弟我在執行過程中遇見這個問題，那麼解決方式只要使用以下指令，打開權限即可。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">setsebool -P httpd_can_network_connect 1</span><br></pre></td></tr></table></figure></p>
+<h2 id="Step-6-Restart-Nginx"><a href="#Step-6-Restart-Nginx" class="headerlink" title="Step 6. Restart Nginx"></a>Step 6. Restart Nginx</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl restart nginx</span><br></pre></td></tr></table></figure>
+<h1 id="Tomcat-Setting"><a href="#Tomcat-Setting" class="headerlink" title="Tomcat Setting"></a>Tomcat Setting</h1><p>我沒有設定Tomcat呢…我只是要做最簡單的Load Balance，因此Tomcat不理他…然後Tomcat安裝方式網路上有很多!! XD</p>
+<h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h1><h2 id="How-To-Install-Nginx-on-CentOS-7"><a href="#How-To-Install-Nginx-on-CentOS-7" class="headerlink" title="How To Install Nginx on CentOS 7"></a><a href="https://www.digitalocean.com/community/tutorials/how-to-install-nginx-on-centos-7" target="_blank" rel="noopener">How To Install Nginx on CentOS 7</a></h2><h2 id="Using-nginx-as-HTTP-load-balancer"><a href="#Using-nginx-as-HTTP-load-balancer" class="headerlink" title="Using nginx as HTTP load balancer"></a><a href="http://nginx.org/en/docs/http/load_balancing.html" target="_blank" rel="noopener">Using nginx as HTTP load balancer</a></h2><h2 id="Nginx與Apache比較"><a href="#Nginx與Apache比較" class="headerlink" title="Nginx與Apache比較"></a><a href="https://www.hellosanta.com.tw/Drupal%E7%B6%B2%E7%AB%99%E8%A8%AD%E8%A8%88/nginx%E8%88%87apache%E6%AF%94%E8%BC%83" target="_blank" rel="noopener">Nginx與Apache比較</a></h2><h2 id="13-Permission-denied-while-connecting-to-upstream-nginx"><a href="#13-Permission-denied-while-connecting-to-upstream-nginx" class="headerlink" title="(13: Permission denied) while connecting to upstream:[nginx]"></a><a href="https://stackoverflow.com/questions/23948527/13-permission-denied-while-connecting-to-upstreamnginx" target="_blank" rel="noopener">(13: Permission denied) while connecting to upstream:[nginx]</a></h2>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/06/20/Android-Bluetooth-API-偵測與搜尋/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -742,131 +871,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/02/20/Android-關於RecyclerView自適應高、寬-WrapContent-的方法/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="AndyKyuo">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/me.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="軟體就是一個大坑">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2016/02/20/Android-關於RecyclerView自適應高、寬-WrapContent-的方法/" itemprop="url">Android. 關於RecyclerView自適應高、寬(WrapContent)的方法</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">發表於</span>
-              
-              <time title="創建於" itemprop="dateCreated datePublished" datetime="2016-02-20T11:01:46+08:00">
-                2016-02-20
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>我們要知道一件事情啦！ RecyclerView沒有對於Item做任何的改變，簡單的說，我們的Layout編排，都是靠LayoutManager去做修改，因此我們需要對於LayoutManager做運算。</p>
-<p>所以我們得手動更改onMeasure，以下為LinearLayoutManager做範例。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WrapContentLinearLayout</span> <span class="keyword">extends</span> <span class="title">LinearLayoutManager</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">WrapContentLinearLayout</span><span class="params">(Context context)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>(context);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">WrapContentLinearLayout</span><span class="params">(Context context, <span class="keyword">int</span> orientation, <span class="keyword">boolean</span> reverseLayout)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>(context, orientation, reverseLayout);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">WrapContentLinearLayout</span><span class="params">(Context context, AttributeSet attrs, <span class="keyword">int</span> defStyleAttr, <span class="keyword">int</span> defStyleRes)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>(context, attrs, defStyleAttr, defStyleRes);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onMeasure</span><span class="params">(RecyclerView.Recycler recycler, RecyclerView.State state, <span class="keyword">int</span> widthSpec, <span class="keyword">int</span> heightSpec)</span> </span>&#123;</span><br><span class="line">        View view = recycler.getViewForPosition(<span class="number">0</span>);</span><br><span class="line">        <span class="keyword">if</span>(view != <span class="keyword">null</span>)&#123;</span><br><span class="line">            measureChild(view, widthSpec, heightSpec); <span class="comment">//計算View的高寬</span></span><br><span class="line">            <span class="keyword">int</span> measuredWidth = getItemCount() * view.getMeasuredWidth() &gt; View.MeasureSpec.getSize(widthSpec) ? View.MeasureSpec.getSize(widthSpec) : getItemCount() * view.getMeasuredWidth();</span><br><span class="line">            <span class="keyword">int</span> measuredHeight = view.getMeasuredHeight();</span><br><span class="line">            setMeasuredDimension(measuredWidth, measuredHeight);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>如果全部的ItemView寬度大於RecyclerView的寬度就使用原先的寬度，反之就使用我們ItemView的寬度，如此一來就解決了。</p>
-<p>然後就…江…上面這方法聽說不是很準確的抓到高寬度，但我覺得夠用了！反正使用者又看不太出來(感覺要被打了…)。</p>
-<p>以上為今日不負責任教學講座，請看好看滿。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -921,7 +925,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">22</span>
+                  <span class="site-state-item-count">23</span>
                   <span class="site-state-item-name">文章</span>
                 </a>
               </div>

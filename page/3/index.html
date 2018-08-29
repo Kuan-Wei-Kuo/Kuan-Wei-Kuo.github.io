@@ -249,6 +249,131 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/02/20/Android-關於RecyclerView自適應高、寬-WrapContent-的方法/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="AndyKyuo">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/me.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="軟體就是一個大坑">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2016/02/20/Android-關於RecyclerView自適應高、寬-WrapContent-的方法/" itemprop="url">Android. 關於RecyclerView自適應高、寬(WrapContent)的方法</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2016-02-20T11:01:46+08:00">
+                2016-02-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>我們要知道一件事情啦！ RecyclerView沒有對於Item做任何的改變，簡單的說，我們的Layout編排，都是靠LayoutManager去做修改，因此我們需要對於LayoutManager做運算。</p>
+<p>所以我們得手動更改onMeasure，以下為LinearLayoutManager做範例。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WrapContentLinearLayout</span> <span class="keyword">extends</span> <span class="title">LinearLayoutManager</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">WrapContentLinearLayout</span><span class="params">(Context context)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>(context);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">WrapContentLinearLayout</span><span class="params">(Context context, <span class="keyword">int</span> orientation, <span class="keyword">boolean</span> reverseLayout)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>(context, orientation, reverseLayout);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">WrapContentLinearLayout</span><span class="params">(Context context, AttributeSet attrs, <span class="keyword">int</span> defStyleAttr, <span class="keyword">int</span> defStyleRes)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>(context, attrs, defStyleAttr, defStyleRes);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onMeasure</span><span class="params">(RecyclerView.Recycler recycler, RecyclerView.State state, <span class="keyword">int</span> widthSpec, <span class="keyword">int</span> heightSpec)</span> </span>&#123;</span><br><span class="line">        View view = recycler.getViewForPosition(<span class="number">0</span>);</span><br><span class="line">        <span class="keyword">if</span>(view != <span class="keyword">null</span>)&#123;</span><br><span class="line">            measureChild(view, widthSpec, heightSpec); <span class="comment">//計算View的高寬</span></span><br><span class="line">            <span class="keyword">int</span> measuredWidth = getItemCount() * view.getMeasuredWidth() &gt; View.MeasureSpec.getSize(widthSpec) ? View.MeasureSpec.getSize(widthSpec) : getItemCount() * view.getMeasuredWidth();</span><br><span class="line">            <span class="keyword">int</span> measuredHeight = view.getMeasuredHeight();</span><br><span class="line">            setMeasuredDimension(measuredWidth, measuredHeight);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果全部的ItemView寬度大於RecyclerView的寬度就使用原先的寬度，反之就使用我們ItemView的寬度，如此一來就解決了。</p>
+<p>然後就…江…上面這方法聽說不是很準確的抓到高寬度，但我覺得夠用了！反正使用者又看不太出來(感覺要被打了…)。</p>
+<p>以上為今日不負責任教學講座，請看好看滿。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/02/05/Android-使用ValueAnimator令顏色漸變轉換/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -740,137 +865,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/01/04/Android-猴子也學不會的SQLite-1/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="AndyKyuo">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/me.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="軟體就是一個大坑">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2016/01/04/Android-猴子也學不會的SQLite-1/" itemprop="url">Android. 猴子也學不會的SQLite(1)</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">發表於</span>
-              
-              <time title="創建於" itemprop="dateCreated datePublished" datetime="2016-01-04T11:13:42+08:00">
-                2016-01-04
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>各位道友，貧道今天來分享一下魯魯der文章，在大家踏入這個Android開發以後，會發現其實SQLite在Android其實很常使用。</p>
-<p>接下來就簡約介紹一下SQLite。</p>
-<ol>
-<li><p>SQLite的優點<br>(1) 體積小，適用於一些簡單的應用也方便攜帶<br>(2) 在多讀少寫的情況下，讀取速度甚至優於MySQL<br>(3) 可以橫跨多種平台<br>(4) SQLite為檔案型資料庫，要備份直接Copy一個檔案就好。<br>(5) 支援多種語言</p>
-</li>
-<li><p>SQLite的缺點<br>(1) 容量受限<br>(2) 許多功能相較於一般資料庫來的少</p>
-</li>
-</ol>
-<p>其實SQLite的優點是大於缺點的，但對於大數據的情況下，SQLite是沒有辦法與知名資料庫比較的。更應該說，他們是不同領域下的佼佼者，在手機、嵌入式等等的小型系統，是非常受用的，反之。</p>
-<p>那麼我們接下來教學將會以Android為主軸，來設計SQLite。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MySQLiteManager</span> <span class="keyword">extends</span> <span class="title">SQLiteOpenHelper</span> </span>&#123;</span><br><span class="line">  </span><br><span class="line">    <span class="comment">// 資料庫版本</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="keyword">int</span> DB_VERSION = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//資料庫名稱，附檔名為db</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> String DB_NAME = <span class="string">"MySQLite.db"</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//資料表名稱</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> String INFO_TABLE = <span class="string">"info_table"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> String ROW_ID = <span class="string">"rowId"</span>;  </span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> String NAME = <span class="string">"name"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> String PHONE = <span class="string">"phone"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MySQLiteManager</span> <span class="params">(Context context)</span> </span>&#123;</span><br><span class="line">          <span class="keyword">super</span>(context, DB_NAME, <span class="keyword">null</span>, DB_VERSION);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 每次使用將會檢查是否有無資料表，若無，則會建立資料表</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(SQLiteDatabase db)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//SQLite 所支援屬性帳面上的不多，但事實上也是能夠讀取一些其它屬性</span></span><br><span class="line">        String createTable = <span class="string">"CREATE TABLE "</span> + INFO_TABLE+ <span class="string">" ("</span></span><br><span class="line">                          + ROW_ID + <span class="string">" INTEGER PRIMARY KEY AUTOINCREMENT, "</span> + NAME + <span class="string">" TEXT, "</span> + PHONE + <span class="string">" TEXT);"</span>;</span><br><span class="line">        db.execSQL(createTable);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onUpgrade</span><span class="params">(SQLiteDatabase db, <span class="keyword">int</span> i, <span class="keyword">int</span> i2)</span> </span>&#123;</span><br><span class="line">      </span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>這樣就可以建立出一個簡單的資料表了，大家不仿可以嘗試看看，<br>第一章節比較無聊與簡單，後面將會慢慢精彩起來，這也是必經過程，加油！</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -925,7 +919,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">22</span>
+                  <span class="site-state-item-count">23</span>
                   <span class="site-state-item-name">文章</span>
                 </a>
               </div>
