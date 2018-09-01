@@ -249,6 +249,137 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/01/Install-Redis-on-Centos7/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="AndyKyuo">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/me.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="軟體就是一個大坑">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/02/01/Install-Redis-on-Centos7/" itemprop="url">Install Redis on Centos7</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2018-02-01T20:35:09+08:00">
+                2018-02-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>Redis是一個OpenSource的CacheServer，人家可是NoSQL + KeyValue概念呢! 想當然Cache有分內存、磁碟等兩種方式，要使用哪一種儲存方式全看需求。然而Redis身為一個社群活耀的OpenSource，那麼內建transactions、replication以及data structures等多樣功能肯定也是很正常的一件事情。</p>
+<p>話不多說，進入主題，窩們今天要在centos7上面給他裝裝Redis囉!</p>
+<h1 id="Yum-Install"><a href="#Yum-Install" class="headerlink" title="Yum Install"></a>Yum Install</h1><p>最簡單的安裝方式。</p>
+<h2 id="Step-1-Update-yum-and-install-EPEL-repository"><a href="#Step-1-Update-yum-and-install-EPEL-repository" class="headerlink" title="Step 1. Update yum and install EPEL repository"></a>Step 1. Update yum and install EPEL repository</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">yum install epel-release</span><br><span class="line">yum update</span><br></pre></td></tr></table></figure>
+<h2 id="Step-2-Install-Redis"><a href="#Step-2-Install-Redis" class="headerlink" title="Step 2. Install Redis"></a>Step 2. Install Redis</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">yum install redis</span><br><span class="line"></span><br><span class="line"># 開機自動啟動囉!</span><br><span class="line">systemctl enable redis</span><br></pre></td></tr></table></figure>
+<h2 id="Step-3-Configuration-redis-conf"><a href="#Step-3-Configuration-redis-conf" class="headerlink" title="Step 3. Configuration redis.conf"></a>Step 3. Configuration redis.conf</h2><p>使用這種方式安裝的設定檔可於/etc/redis.conf看到，我們需要編輯他。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/redis.conf</span><br><span class="line"></span><br><span class="line">#----加入以下資訊----#</span><br><span class="line"></span><br><span class="line">#加入對外IP，若沒有加可以於local測試，反之則無法於外面機器測試</span><br><span class="line">bind 127.0.0.1 192.168.56.101</span><br></pre></td></tr></table></figure></p>
+<h1 id="Download-Install"><a href="#Download-Install" class="headerlink" title="Download Install"></a>Download Install</h1><p>如果你不想使用yum進行安裝的人，可以使用這個方式。</p>
+<h2 id="Step-1-Install-necessary-packages"><a href="#Step-1-Install-necessary-packages" class="headerlink" title="Step 1. Install necessary packages"></a>Step 1. Install necessary packages</h2><p>Redis有使用到其他的Source，因此一並給他裝上去。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install wget make gcc</span><br></pre></td></tr></table></figure></p>
+<h2 id="Step-2-Install-Redis-1"><a href="#Step-2-Install-Redis-1" class="headerlink" title="Step 2. Install Redis"></a>Step 2. Install Redis</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir /usr/redis</span><br><span class="line">wget http://download.redis.io/releases/redis-3.2.9.tar.gz // download</span><br><span class="line">tatar -zxvf redis-3.2.9.tar.gz -C /usr/redis --strip-components=1 // untar</span><br><span class="line">make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+<p>Step 3. Install Init Redis Script<br>在這個步驟你會需要輸入redis的相關設定，那基本上我是都照預設下去跑，一直Enter。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">cd /usr/redis/utils</span><br><span class="line">./install_server.sh</span><br><span class="line"></span><br><span class="line"># 開機自動啟動囉!</span><br><span class="line">systemctl enable redis_6379</span><br></pre></td></tr></table></figure></p>
+<h2 id="Step-4-Configuration-redis-conf"><a href="#Step-4-Configuration-redis-conf" class="headerlink" title="Step 4. Configuration redis.conf"></a>Step 4. Configuration redis.conf</h2><p>若是像上述直接enter安裝的你，會在/etc/redis/6379.conf發現redis設定檔，我們需要編輯他。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/redis/6379.conf</span><br><span class="line"></span><br><span class="line">#----加入以下資訊----#</span><br><span class="line"></span><br><span class="line">#加入對外IP，若沒有加可以於local測試，反之則無法於外面機器測試</span><br><span class="line">bind 127.0.0.1 192.168.56.101</span><br></pre></td></tr></table></figure></p>
+<h1 id="Testing"><a href="#Testing" class="headerlink" title="Testing"></a>Testing</h1><p>我們就簡單測試看看，理論上會儲存成功，並且Get出123字串。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">redis-cli set andy &apos;123&apos;</span><br><span class="line">redis-cli get andy</span><br></pre></td></tr></table></figure></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/01/20/Nginx-Tomcat-Load-Balance/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -748,129 +879,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/03/01/Android-讓Spinner-Item可重複-Repeat-點擊/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="AndyKyuo">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/me.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="軟體就是一個大坑">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2016/03/01/Android-讓Spinner-Item可重複-Repeat-點擊/" itemprop="url">Android. 讓Spinner Item可重複(Repeat)點擊</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">發表於</span>
-              
-              <time title="創建於" itemprop="dateCreated datePublished" datetime="2016-03-01T10:49:28+08:00">
-                2016-03-01
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>Spinner是一種簡單的選單，但通常我們都只是簡單應用，並沒有做太多的改變，但我看到某些APP可以重複點擊耶！我也TMD很有事的研究了一下。</p>
-<p>先說好我只Po KeyCode，其餘的自己想辦法應用啦~我可是跟Google研究很久耶!((被踹飛<br>如果你想讓Spinner Item可以重複點擊，那麼就用下面這個囉！</p>
-<h1 id="修改Spinner-SourceCode"><a href="#修改Spinner-SourceCode" class="headerlink" title="修改Spinner SourceCode"></a>修改Spinner SourceCode</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">    Field field = AdapterView.class.getDeclaredField(<span class="string">"mOldSelectedPosition"</span>);</span><br><span class="line">    field.setAccessible(<span class="keyword">true</span>);</span><br><span class="line">    field.setInt(spinner_nav, AdapterView.INVALID_POSITION);</span><br><span class="line">&#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">    e.printStackTrace();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>如果你有稍微研究一下SourceCode你會看到mOldSelectedPosition是怎樣的角色，當ItemPosition被記錄到mOldSelectedPosition的時候，代表我們已經點擊過，這時候他們就不會給你點擊，所以我們透過修改mOldSelectedPositio，讓他保持初始，這樣我們就可以瘋狂重複點擊啦！</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -925,7 +933,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">23</span>
+                  <span class="site-state-item-count">24</span>
                   <span class="site-state-item-name">文章</span>
                 </a>
               </div>

@@ -249,6 +249,136 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/01/10/Android-猴子也學不會的SQLite-2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="AndyKyuo">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/me.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="軟體就是一個大坑">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2016/01/10/Android-猴子也學不會的SQLite-2/" itemprop="url">Android. 猴子也學不會的SQLite(2)</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2016-01-10T09:56:42+08:00">
+                2016-01-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>在上一篇文章想必大家都建立好了一個資料庫(檔案型)，那麼接下來就是重頭戲了，如何新增、修改、刪除以及取得資料等動作呢?</p>
+<h1 id="新增"><a href="#新增" class="headerlink" title="新增"></a>新增</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">insterInfo</span><span class="params">(SQLiteDatabase db, String name, String phone)</span> </span>&#123;</span><br><span class="line">    ContentValues contentValues = <span class="keyword">new</span> ContentValues();</span><br><span class="line">    contentValues.put(NAME, name);</span><br><span class="line">    contentValues.put(PHONE, phone);</span><br><span class="line"></span><br><span class="line">    db.insert(INFO_TABLE, <span class="keyword">null</span>, contentValues);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在第一章節我們建立了INFO TABLE，內部欄位為RowId, Name, Phone，但因RowId每次自動累加，因此不需在新增一次。</p>
+<h1 id="修改"><a href="#修改" class="headerlink" title="修改"></a>修改</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">updateInfo</span><span class="params">(SQLiteDatabase db, String rowId, String name, String phone)</span> </span>&#123;</span><br><span class="line">    ContentValues contentValues = <span class="keyword">new</span> ContentValues();</span><br><span class="line">    contentValues.put(NAME, name);</span><br><span class="line">    contentValues.put(PHONE, phone);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//問號對應到後面陣列的資料</span></span><br><span class="line">    db.update(INFO_TABLE, contentValues, ROW_ID + <span class="string">"=?"</span>, <span class="keyword">new</span> String[] &#123;rowId&#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>修改部分與新增大同小異，唯一不同的就是多了個RowId，這個欄位是我們主要索引值，當RowId = 1時，那麼我們將會把新的資料塞進去第一筆資料當中，以此類推。</p>
+<h1 id="刪除"><a href="#刪除" class="headerlink" title="刪除"></a>刪除</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">removeInfo</span><span class="params">(SQLiteDatabase db, String rowId)</span> </span>&#123;</span><br><span class="line">    db.delete(INFO_TABLE, ROW_ID + <span class="string">"=?"</span>, <span class="keyword">new</span> String[]&#123;rowId&#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>利用PK值進行刪除，如果想要多欄位刪除的話，需要自行設計，方法雷同。</p>
+<h1 id="取得資料"><a href="#取得資料" class="headerlink" title="取得資料"></a>取得資料</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> Cursor <span class="title">getInfO</span><span class="params">(SQLiteDatabase db)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span>  db.query(INFO_TABLE, <span class="keyword">new</span> String[] &#123;ROW_ID, NAME, PHONE&#125;, <span class="keyword">null</span>, <span class="keyword">null</span>, <span class="keyword">null</span>, <span class="keyword">null</span>, <span class="keyword">null</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>回傳值是Cursor物件，我們看看Cursor物件的使用方式</p>
+<h2 id="Cursor使用方法"><a href="#Cursor使用方法" class="headerlink" title="Cursor使用方法"></a>Cursor使用方法</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">MySQLiteManager mSQLiteManager = <span class="keyword">new</span> MySQLiteManager(<span class="keyword">this</span>);</span><br><span class="line">Cursor mCursor = mSQLiteManager.getInfo(mSQLiteManager.getReadableDatabase());</span><br><span class="line"><span class="keyword">if</span>(mCursor != <span class="keyword">null</span>) &#123;</span><br><span class="line">    mCursor.moveToFirst();</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; mCursor.getCount() ; i++) &#123;</span><br><span class="line">        <span class="comment">//Do Something</span></span><br><span class="line">        mCursor.moverToNext();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>好了今天就到這邊，其實也就是一般的SQL操作而已。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/01/04/Android-猴子也學不會的SQLite-1/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -758,132 +888,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2015/11/19/Android-Toolbar與ActionMode的運用/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="AndyKyuo">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/me.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="軟體就是一個大坑">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2015/11/19/Android-Toolbar與ActionMode的運用/" itemprop="url">Android. Toolbar與ActionMode的運用</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">發表於</span>
-              
-              <time title="創建於" itemprop="dateCreated datePublished" datetime="2015-11-19T10:25:00+08:00">
-                2015-11-19
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>我想很多人不知道有這個ActionMode的存在，好啦…我承認之前真的不知道。</p>
-<p>值得高興的是Toolbar也有支援ActionMode，可以讓我們更方便的在特殊時刻切換至想要的Menu。</p>
-<h1 id="接下來就來說明如何應用"><a href="#接下來就來說明如何應用" class="headerlink" title="接下來就來說明如何應用"></a>接下來就來說明如何應用</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">ActionMode actionMode; <span class="comment">//為了可以對ActionMode做外部的更改</span></span><br><span class="line">Toolbar toolbar = (Toolbar) findViewById(R.i.toolbar);</span><br><span class="line">toolbar.toolbar.startActionMode( <span class="keyword">new</span> ActionMode.Callback() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onCreateActionMode</span><span class="params">(ActionMode mode, Menu menu)</span> </span>&#123;</span><br><span class="line">        actionMode = mode; <span class="comment">//取得目前的ActionMode</span></span><br><span class="line">        mode.getMenuInflater().inflate(R.menu.menu, menu);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onPrepareActionMode</span><span class="params">(ActionMode mode, Menu menu)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//準備</span></span><br><span class="line">        mode.setTitle(<span class="string">"Title"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onActionItemClicked</span><span class="params">(ActionMode mode, MenuItem item)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//Menu Item 點擊</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onDestroyActionMode</span><span class="params">(ActionMode mode)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//當ActionMode移除</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-<p>其實用法就這麼簡單，但當完成的時候，肯定會發現為什麼沒有覆蓋Toolbar，這時候我們只要加入下面這行：<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"windowActionModeOverlay"</span>&gt;</span>true<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span><br></pre></td></tr></table></figure></p>
-<p>那麼ActionMode就可以覆蓋在Toolbar上面。</p>
-<h1 id="Before"><a href="#Before" class="headerlink" title="Before"></a>Before</h1><p><img src="/2015/11/19/Android-Toolbar與ActionMode的運用/actionMode_0.png" width="300"></p>
-<h1 id="After"><a href="#After" class="headerlink" title="After"></a>After</h1><p><img src="/2015/11/19/Android-Toolbar與ActionMode的運用/actionMode_1.png" width="300"></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -938,7 +942,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">23</span>
+                  <span class="site-state-item-count">24</span>
                   <span class="site-state-item-name">文章</span>
                 </a>
               </div>
