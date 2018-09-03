@@ -249,6 +249,126 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/08/17/從Logdown搬過來/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="AndyKyuo">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/me.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="軟體就是一個大坑">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/08/17/從Logdown搬過來/" itemprop="url">從Logdown搬過來</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2018-08-17T09:42:02+08:00">
+                2018-08-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="Logdown還好嗎"><a href="#Logdown還好嗎" class="headerlink" title="Logdown還好嗎?"></a>Logdown還好嗎?</h1><p>最近我也很吃驚，為什麼Logdown無法登入，所以我要搬家啦!!! 一起吃香蕉。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/01/Install-Redis-on-Centos7/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -751,134 +871,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/04/01/Android-View的水平與慣性移動/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="AndyKyuo">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/me.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="軟體就是一個大坑">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2016/04/01/Android-View的水平與慣性移動/" itemprop="url">Android. View的水平與慣性移動</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">發表於</span>
-              
-              <time title="創建於" itemprop="dateCreated datePublished" datetime="2016-04-01T16:10:37+08:00">
-                2016-04-01
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>猶如前幾天所發布的開源圖表套件，有嘗試的人應該會發現移動怪怪的，這部分確實當初並沒有對於這部分下功夫，所以我今天給他更改了一下，達到我們所想要的滑動效果。</p>
-<p>今天比較平穩的Po文，因為我好累，懶得靠北太多程式的東西，但還是得分享分享。</p>
-<p>首先我們得了解兩大Class，分別為Scroller與VelocityTracker，前者為滑動效果，後者為手勢速度，看到上述的物件應該都明白我們將之搭配起來，來讓我們有高級滑動的效果！</p>
-<h1 id="Scroller"><a href="#Scroller" class="headerlink" title="Scroller"></a>Scroller</h1><p>它不是物件，簡單的來說，它可以計算精確的滑動位置，讓我們使用這些數據做運用。<br>它包含了各種滑動的運算，當然我們通常都只用到其中幾種。</p>
-<h1 id="VelocityTracker"><a href="#VelocityTracker" class="headerlink" title="VelocityTracker"></a>VelocityTracker</h1><p>這Class通常放在OnTouch觸發的狀態下，記錄當前手勢的移動位置與計算速度。</p>
-<p>接下來以一個簡單的範例來說明。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CustomView</span> <span class="title">extands</span> <span class="title">View</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> SCROLL_MODE = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> FLING_MODE = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span> SCROLLER_MODE = -<span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Scroller mScroller;</span><br><span class="line">    <span class="keyword">private</span> VelocityTracker mVelocityTracker;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> mScaledMinimumFlingVelocity;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> mScaledMaximumFlingVelocity;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">float</span> offestX, offestY;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">CustomView</span><span class="params">(Context context)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>(context);</span><br><span class="line">        mScroller = <span class="keyword">new</span> Scroller(context);</span><br><span class="line">        mViewConfiguration = ViewConfiguration.get(context);</span><br><span class="line">        mScaledMinimumFlingVelocity = mViewConfiguration.getScaledMinimumFlingVelocity();</span><br><span class="line">        mScaledMaximumFlingVelocity = mViewConfiguration.getScaledMaximumFlingVelocity();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">obtainVelocityTracker</span><span class="params">(MotionEvent event)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (mVelocityTracker == <span class="keyword">null</span>) &#123;</span><br><span class="line">            mVelocityTracker = VelocityTracker.obtain();</span><br><span class="line">        &#125;</span><br><span class="line">        mVelocityTracker.addMovement(event);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">releaseVelocityTracker</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (mVelocityTracker != <span class="keyword">null</span>) &#123;</span><br><span class="line">            mVelocityTracker.recycle();</span><br><span class="line">            mVelocityTracker = <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onTouchEvent</span><span class="params">(MotionEvent event)</span> </span>&#123;</span><br><span class="line">        obtainVelocityTracker(event); <span class="comment">//每次動作都得運算</span></span><br><span class="line">        <span class="keyword">switch</span>(event.getAction) &#123;</span><br><span class="line">            <span class="keyword">case</span> MotionEvent.ACTION_DOWN:</span><br><span class="line">                offestX = curLeft - event.getX();</span><br><span class="line">                offestY = curTop - event.getY();</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> MotionEvent.ACTION_MOVE:</span><br><span class="line">                SCROLLER_MODE = SCROLL_MODE;</span><br><span class="line">                mScroller.startScroll((<span class="keyword">int</span>) event.getX(), (<span class="keyword">int</span>) event.getY(),</span><br><span class="line">                    (<span class="keyword">int</span>) offestX, (<span class="keyword">int</span>) offestY, <span class="number">1</span>);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> MotionEvent.ACTION_UP:</span><br><span class="line">                SCROLLER_MODE = FLING_MODE;</span><br><span class="line">                <span class="keyword">int</span> initialVelocity = (<span class="keyword">int</span>) mVelocityTracker.getXVelocity();</span><br><span class="line">                mVelocityTracker.computeCurrentVelocity(<span class="number">1000</span>, mScaledMaximumFlingVelocity);</span><br><span class="line">                <span class="keyword">if</span> (Math.abs(initialVelocity) &gt; mScaledMinimumFlingVelocity) &#123;</span><br><span class="line">                    <span class="comment">// 這個方法不難看出，Scroller與VelocityTracker的緊密結合。</span></span><br><span class="line">                    mScroller.fling((<span class="keyword">int</span>) curLeft, (<span class="keyword">int</span>) curTop,</span><br><span class="line">                                (<span class="keyword">int</span>) mVelocityTracker.getXVelocity(), (<span class="keyword">int</span>) mVelocityTracker.getYVelocity(),</span><br><span class="line">                                minX, maxX, minY, maxY);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="comment">// 釋放VelocityTracker資源</span></span><br><span class="line">                releaseVelocityTracker();</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 如果沒有Invalidate狀態，Scroller是不會運作的，更不會運作computeScroll()</span></span><br><span class="line">        ViewCompat.postInvalidateOnAnimation(<span class="keyword">this</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * 這方法很明顯的就是要我們自行去計算Sroller所給予的數值。</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">computeScroll</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">        *將兩種不同數據分開的原因為，我們Scroll更新速度快，因此直接用最終結果</span></span><br><span class="line"><span class="comment">        *然而Fling算是一種動畫效果，因此在ACTION_UP時會有這個動畫，這時候就需要使用當前數據。    </span></span><br><span class="line"><span class="comment">        */</span></span><br><span class="line">        <span class="keyword">if</span>(SCROLLER_MODE == SCROLL_MODE) &#123;</span><br><span class="line">            curLeft = mScroller.getFinalX();</span><br><span class="line">            curTop = mScroller.getFinalY():</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            curLeft = mScroller.getCurrX();</span><br><span class="line">            curTop = mScroller.getCurrY();</span><br><span class="line">        &#125;</span><br><span class="line">        ViewCompat.postInvalidateOnAnimation(<span class="keyword">this</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>好吧！　今天下課了，看起來沒有很複雜，如果想有更棒的效果，<br>對於Scroller與VelocityTracker的了解是不可或缺的，除非你想自己寫Buffer &gt;\&lt;</p>
-<p>程式碼只是把部分打出來，所以可能不能直接套用，自己先嘗試看看吧！</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -933,7 +925,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-count">25</span>
                   <span class="site-state-item-name">文章</span>
                 </a>
               </div>

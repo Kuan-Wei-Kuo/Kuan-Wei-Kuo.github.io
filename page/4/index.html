@@ -249,6 +249,128 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/01/18/Android-猴子也學不會的SQLite-3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="AndyKyuo">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/me.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="軟體就是一個大坑">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2016/01/18/Android-猴子也學不會的SQLite-3/" itemprop="url">Android. 猴子也學不會的SQLite(3)</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2016-01-18T11:05:42+08:00">
+                2016-01-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>有時候會因應一些需求，需要修改資料庫欄位設計，這時候SQLite稍嫌不太方便，需要利用onUpgrade方法，進行ALTER動作。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> String DATE = <span class="string">"date"</span>; <span class="comment">//欄位名稱</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onUpgrade</span><span class="params">(SQLiteDatabase sqLiteDatabase, <span class="keyword">int</span> oldVersion, <span class="keyword">int</span> newVersion)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(newVersion &gt; oldVersion) &#123;</span><br><span class="line">        sqLiteDatabase.beginTransaction();</span><br><span class="line">    <span class="keyword">if</span>(oldVersion == <span class="number">1</span>) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 新增一個日期欄位，預設為NULL字串</span></span><br><span class="line">            sqLiteDatabase.execSQL(<span class="string">"ALTER TABLE "</span> + INFO_TABLE + <span class="string">" ADD COLUMN "</span> + DATE + <span class="string">" TEXT DEFAULT "</span> + <span class="string">"NULL"</span>;</span><br><span class="line">            Log.d(<span class="string">"SQLite"</span>, <span class="string">"版本更新成功，結束交易..."</span>);</span><br><span class="line">            sqLiteDatabase.setTransactionSuccessful();</span><br><span class="line">            sqLiteDatabase.endTransaction();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            Log.d(<span class="string">"SQLite"</span>, <span class="string">"版本更新失敗，結束交易..."</span>);</span><br><span class="line">            sqLiteDatabase.endTransaction();</span><br><span class="line">        &#125;        </span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        onCreate(sqLiteDatabase);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>由上述程式碼可以看出我們新增需要自己去編寫程式碼，就是這麼簡單，但SQLite是放在使用者的地方，因此也不建議大量更新資料庫。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/01/10/Android-猴子也學不會的SQLite-2/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -742,152 +864,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2015/11/19/Android-MVP的簡單介紹與使用/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="AndyKyuo">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/me.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="軟體就是一個大坑">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2015/11/19/Android-MVP的簡單介紹與使用/" itemprop="url">Android. MVP的簡單介紹與使用</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">發表於</span>
-              
-              <time title="創建於" itemprop="dateCreated datePublished" datetime="2015-11-19T20:30:00+08:00">
-                2015-11-19
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>關於這篇文章的發表，個人其實也非常忐忑，但卻始終忍不住與大家一起探討這些問題。</p>
-<p>自從MVP問世以後，Android開發者中已經掀起了許多看法，也因每個人的看法不同，所以我想在此發表自己的看法，並且與各位討論！</p>
-<p>MVP 與 MVC 的選擇是如何? 我想很多人其實也很疑惑，但我相信新手們肯定都不知道這兩個是什麼?</p>
-<h1 id="淺談MVC"><a href="#淺談MVC" class="headerlink" title="淺談MVC"></a>淺談MVC</h1><h2 id="經典模式中的MVC"><a href="#經典模式中的MVC" class="headerlink" title="經典模式中的MVC"></a>經典模式中的MVC</h2><img src="/2015/11/19/Android-MVP的簡單介紹與使用/MVC_ICON.jpg">
-<h2 id="事實上MVC會變成"><a href="#事實上MVC會變成" class="headerlink" title="事實上MVC會變成"></a>事實上MVC會變成</h2><img src="/2015/11/19/Android-MVP的簡單介紹與使用/Usual_MVC.jpg">
-<p>大家應該可以看到第二張圖中的虛線，沒錯，我們MVC通常會變成這樣，因為當我們Model完成時，該如何溝通View?</p>
-<p>除非我們讓View也可讓Model溝通，但這卻又不符合MVC的初始原則，也造就了現在許多人對於MVC的說法各種不一。</p>
-<p>我也只能夠確定一點，MVC這一詞只會越來越亂，因為許多工程師都有自己對於MVC的看法。</p>
-<h1 id="淺談MVP"><a href="#淺談MVP" class="headerlink" title="淺談MVP"></a>淺談MVP</h1><img src="/2015/11/19/Android-MVP的簡單介紹與使用/MVP_ICON.jpg">
-<p>MVP其實就是由MVC所演變而來，從圖上可知道，View與Model靠著Presenter做溝通，兩者間並無法直接溝通，這樣的架構好處就是，當Model修改時，只要我們最後的數據型態是相同的，View就不需要修改。</p>
-<p>在Android方面，Activity(Fragment)可以稱為是Controller、View，兩者都是，如果使用MVC這種模式，我認為對於程式的撰寫是非常不易的，因此也認為MVP的架構對於Android，是相對有利的。</p>
-<h1 id="為什麼要使用"><a href="#為什麼要使用" class="headerlink" title="為什麼要使用"></a>為什麼要使用</h1><p>不論MVP與MVC兩者間都會讓程式上較於複雜，但如果理解這些模式的人，應該會更加容易明白這些位置的作用。也因為如此，這兩種架構都不適用於小型程式，畢竟只有大量的程式碼，才能夠讓他們發揮真正的作用。</p>
-<ol>
-<li>模組、介面權責劃分明顯</li>
-<li>模組可重複使用</li>
-<li>增加靈活性</li>
-<li>降低依賴性</li>
-</ol>
-<h1 id="MVP的使用方法"><a href="#MVP的使用方法" class="headerlink" title="MVP的使用方法"></a>MVP的使用方法</h1><h2 id="建立Presenter與Model的監聽器"><a href="#建立Presenter與Model的監聽器" class="headerlink" title="建立Presenter與Model的監聽器"></a>建立Presenter與Model的監聽器</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">OnFindItemListener</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 假設我們要取得Integer數值的List</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">onFindItem</span><span class="params">(ArrayList&lt;Integer&gt; integers)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="Model"><a href="#Model" class="headerlink" title="Model"></a>Model</h2><h2 id="建立Model要傳數值回OnFindItemListener的Interactor"><a href="#建立Model要傳數值回OnFindItemListener的Interactor" class="headerlink" title="建立Model要傳數值回OnFindItemListener的Interactor"></a>建立Model要傳數值回OnFindItemListener的Interactor</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">FindItemInteractor</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">onFind</span><span class="params">(OnFindItemListener onFindItemListener)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="建立我們運算取得數據的方法"><a href="#建立我們運算取得數據的方法" class="headerlink" title="建立我們運算取得數據的方法"></a>建立我們運算取得數據的方法</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FindItemInteractorImpl</span> <span class="keyword">implements</span> <span class="title">FindItemInteractor</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onFind</span><span class="params">(OnFindItemListener onFindItemListener)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 回傳ArrayList&lt;Integer&gt;</span></span><br><span class="line">        onFindItemListener.onFindItem(findIntegers()); </span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> ArrayList&lt;Integer&gt; <span class="title">findIntegers</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        ArrayList&lt;Integer&gt; integers = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; <span class="number">10</span> ; i++) &#123;</span><br><span class="line">            integers.add(i);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> integers;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h1 id="View"><a href="#View" class="headerlink" title="View"></a>View</h1><h2 id="與Presenter建立溝通，也是獲取數據的功能"><a href="#與Presenter建立溝通，也是獲取數據的功能" class="headerlink" title="與Presenter建立溝通，也是獲取數據的功能"></a>與Presenter建立溝通，也是獲取數據的功能</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">FindItemView</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 基本上跟OnFindItemListener是一樣的</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">setItem</span><span class="params">(ArrayList&lt;Integer&gt; integers)</span></span>; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h1 id="Presenter"><a href="#Presenter" class="headerlink" title="Presenter"></a>Presenter</h1><h2 id="建立我們主要的Presenter"><a href="#建立我們主要的Presenter" class="headerlink" title="建立我們主要的Presenter"></a>建立我們主要的Presenter</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">FindItemPresenter</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 這邊可以算是命令，當我onStartFind可以做些事</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">onStartFind</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="Presenter應用"><a href="#Presenter應用" class="headerlink" title="Presenter應用"></a>Presenter應用</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FindItemPresenterImpl</span> <span class="keyword">implements</span> <span class="title">FindItemPresenter</span>, <span class="title">OnFindItemListener</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> FindItemView findItemView;</span><br><span class="line">    <span class="keyword">private</span> FindItemInteractor findItemInteractor;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">FindItemPresenterImpl</span><span class="params">(FindItemView findItemView)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.findItemView = findItemView;</span><br><span class="line">        findItemInteractor = <span class="keyword">new</span> FindItemInteractorImpl();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onStartFind</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 當onFind啟動時，也代表FindItemInteractorImpl開始運算</span></span><br><span class="line">        findItemInteractor.onFind(<span class="keyword">this</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onFindItem</span><span class="params">(ArrayList&lt;Integer&gt; integers)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 使用View將數據回傳</span></span><br><span class="line">        findItemView.setItem(integers);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="Activity使用Presenter獲取我們想要的數據"><a href="#Activity使用Presenter獲取我們想要的數據" class="headerlink" title="Activity使用Presenter獲取我們想要的數據"></a>Activity使用Presenter獲取我們想要的數據</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MainActivity</span> <span class="keyword">extends</span> <span class="title">AppCompatActivity</span> <span class="keyword">implements</span> <span class="title">FindItemView</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 為了讓我們可以監聽到FindItemView所回傳的數據，所以需要implements FindItemView</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 宣告一個Presenter</span></span><br><span class="line">    <span class="keyword">private</span> FindItemPresenter findItemPresenter;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState);</span><br><span class="line">        setContentView(R.layout.activity_main);</span><br><span class="line">        initButton();</span><br><span class="line">        <span class="comment">// new Presenter應用</span></span><br><span class="line">        findItemPresenter = <span class="keyword">new</span> FindItemPresenterImpl(<span class="keyword">this</span>); </span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">initButton</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Button button = (Button) findViewById(R.id.button);</span><br><span class="line">        button.setOnClickListener(<span class="keyword">new</span> View.OnClickListener() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onClick</span><span class="params">(View v)</span> </span>&#123;</span><br><span class="line">                <span class="comment">// 如上述所說，這可以算是一個命令，Activity請求Presenter使用onStartFind方法。</span></span><br><span class="line">                findItemPresenter.onStartFind(); </span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 當Model完成運算後，會將數據經由Presenter傳回至View</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setItem</span><span class="params">(ArrayList&lt;Integer&gt; integers)</span> </span>&#123;</span><br><span class="line">        TextView textView = (TextView) findViewById(R.id.textView);</span><br><span class="line">        textView.setText(<span class="string">"Find "</span> + integers.size() + <span class="string">" item."</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h1 id="GitHub-Download"><a href="#GitHub-Download" class="headerlink" title="GitHub Download"></a>GitHub Download</h1><p><a href="https://github.com/Kuan-Wei-Kuo/ExampleMVP" target="_blank" rel="noopener">GitHub</a></p>
-<h1 id="結語"><a href="#結語" class="headerlink" title="結語"></a>結語</h1><p>這篇文章就到此結束了，對於這些設計模式，我們有時候其實很難抉擇與確實的實現，因此只能說，先把View分出來，在來考慮Model。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -942,7 +918,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-count">25</span>
                   <span class="site-state-item-name">文章</span>
                 </a>
               </div>
