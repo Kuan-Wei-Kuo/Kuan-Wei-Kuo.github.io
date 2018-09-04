@@ -377,6 +377,217 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/09/04/SpringMVC-猴子也學不會的系列文-5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="AndyKyuo">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/me.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="軟體就是一個大坑">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/09/04/SpringMVC-猴子也學不會的系列文-5/" itemprop="url">SpringMVC. 猴子也學不會的系列文(5) - Spring Security with Custom Login</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2018-09-04T22:15:04+08:00">
+                2018-09-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="續回介紹"><a href="#續回介紹" class="headerlink" title="續回介紹"></a>續回介紹</h1><p>在上一篇我們介紹了關於登入的做法，這一篇將是他的延伸，使用資料庫與Spring Security做個結合。</p>
+<h1 id="Get-Started"><a href="#Get-Started" class="headerlink" title="Get Started"></a>Get Started</h1><h2 id="Tables"><a href="#Tables" class="headerlink" title="Tables"></a>Tables</h2><p>首先我們需要新增以及修改table，詳細內容在這邊。</p>
+<h3 id="users"><a href="#users" class="headerlink" title="users"></a>users</h3><table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>length</th>
+<th>pk </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>user_id</td>
+<td>int</td>
+<td>-</td>
+<td>y </td>
+</tr>
+<tr>
+<td>username</td>
+<td>varchar</td>
+<td>30</td>
+<td>-</td>
+</tr>
+<tr>
+<td>password</td>
+<td>varchar</td>
+<td>100</td>
+<td>-</td>
+</tr>
+<tr>
+<td>nickname</td>
+<td>varchar</td>
+<td>30</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<h3 id="roles"><a href="#roles" class="headerlink" title="roles"></a>roles</h3><table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>length</th>
+<th>pk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>role_id</td>
+<td>int</td>
+<td>-</td>
+<td>y </td>
+</tr>
+<tr>
+<td>role</td>
+<td>varchar</td>
+<td>30</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<h3 id="user-roles"><a href="#user-roles" class="headerlink" title="user_roles"></a>user_roles</h3><table>
+<thead>
+<tr>
+<th>name</th>
+<th>type</th>
+<th>length</th>
+<th>pk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>role_id</td>
+<td>int</td>
+<td>-</td>
+<td>y </td>
+</tr>
+<tr>
+<td>user_id</td>
+<td>int</td>
+<td>-</td>
+<td>y </td>
+</tr>
+</tbody>
+</table>
+<h2 id="目錄"><a href="#目錄" class="headerlink" title="目錄"></a>目錄</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">├─build.gradle</span><br><span class="line">└─src</span><br><span class="line">    ├─main</span><br><span class="line">    │  ├─java</span><br><span class="line">    │  │  └─com</span><br><span class="line">    │  │      └─spring</span><br><span class="line">    │  │          └─example</span><br><span class="line">    │  │              ├─aspect</span><br><span class="line">    │  │              │  └─UserAspect.java</span><br><span class="line">    │  │              ├─config</span><br><span class="line">    │  │              │  ├─AspectConfig.java</span><br><span class="line">    │  │              │  ├─PersistenceJpaConfig.java</span><br><span class="line">    │  │              │  ├─SecurityConfig.java</span><br><span class="line">    │  │              │  ├─SecurityInitializer.java</span><br><span class="line">    │  │              │  ├─WebConfiguration.java</span><br><span class="line">    │  │              │  └─WebServletInitializer.java</span><br><span class="line">    │  │              ├─controller</span><br><span class="line">    │  │              │  ├─HomeController.java</span><br><span class="line">    │  │              │  ├─LoginController.java</span><br><span class="line">    │  │              │  └─UserController.java</span><br><span class="line">    │  │              ├─entity</span><br><span class="line">    │  │              │  ├─Role.java</span><br><span class="line">    │  │              │  └─User.java    </span><br><span class="line">    │  │              ├─repository</span><br><span class="line">    │  │              │  └─UserRepository.java</span><br><span class="line">    │  │              └─service</span><br><span class="line">    │  │                 ├─impl</span><br><span class="line">    │  │                 │  └─UserServiceImpl.java</span><br><span class="line">    │  │                 ├─CustomUserDetailsService.java</span><br><span class="line">    │  │                 └─UserService.java</span><br><span class="line">    │  ├─resources</span><br><span class="line">    │  │  └─log4j2.xml</span><br><span class="line">    |  └─webapp</span><br><span class="line">    |     └─WEB-INF</span><br><span class="line">    |          └─views</span><br><span class="line">    |             ├─403.jsp</span><br><span class="line">    |             ├─home.jsp</span><br><span class="line">    |             └─login.jsp</span><br></pre></td></tr></table></figure>
+<h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><h3 id="Role-java"><a href="#Role-java" class="headerlink" title="Role.java"></a>Role.java</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Entity</span></span><br><span class="line"><span class="meta">@Table</span>(name = <span class="string">"roles"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Role</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Id</span></span><br><span class="line">    <span class="meta">@GeneratedValue</span>(strategy = GenerationType.IDENTITY)</span><br><span class="line">    <span class="meta">@Column</span>(name = <span class="string">"role_id"</span>)</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> id;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Column</span>(name = <span class="string">"role"</span>)</span><br><span class="line">    <span class="keyword">private</span> String role;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Getter and Setter</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="User-java"><a href="#User-java" class="headerlink" title="User.java"></a>User.java</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Entity</span></span><br><span class="line"><span class="meta">@Table</span>(name = <span class="string">"users"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">User</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Id</span></span><br><span class="line">    <span class="meta">@GeneratedValue</span>(strategy = GenerationType.IDENTITY)</span><br><span class="line">    <span class="meta">@Column</span>(name = <span class="string">"user_id"</span>)</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> id;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Column</span>(name = <span class="string">"username"</span>)</span><br><span class="line">    <span class="keyword">private</span> String username;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Column</span>(name = <span class="string">"password"</span>)</span><br><span class="line">    <span class="keyword">private</span> String password;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Column</span>(name = <span class="string">"nickname"</span>)</span><br><span class="line">    <span class="keyword">private</span> String nickname;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@ManyToMany</span>(cascade = CascadeType.ALL, fetch = FetchType.EAGER)</span><br><span class="line">    <span class="meta">@JoinTable</span>(name = <span class="string">"user_roles"</span>, joinColumns = <span class="meta">@JoinColumn</span>(name = <span class="string">"user_id"</span>), inverseJoinColumns = <span class="meta">@JoinColumn</span>(name = <span class="string">"role_id"</span>))</span><br><span class="line">    <span class="keyword">private</span> Set&lt;Role&gt; roles;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Getter and Setter</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="CustomUserDetailsService-java"><a href="#CustomUserDetailsService-java" class="headerlink" title="CustomUserDetailsService.java"></a>CustomUserDetailsService.java</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CustomUserDetailsService</span> <span class="keyword">implements</span> <span class="title">UserDetailsService</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> UserRepository userRepository;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> UserDetails <span class="title">loadUserByUsername</span><span class="params">(String username)</span> <span class="keyword">throws</span> UsernameNotFoundException </span>&#123;</span><br><span class="line">        User user = userRepository.findByUsername(username);</span><br><span class="line">        <span class="keyword">if</span> (user == <span class="keyword">null</span>)</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> UsernameNotFoundException(<span class="string">"user not found"</span>);</span><br><span class="line">        List&lt;SimpleGrantedAuthority&gt; authorities = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span>(Role role : user.getRoles()) &#123;</span><br><span class="line">            authorities.add(<span class="keyword">new</span> SimpleGrantedAuthority(role.getRole()));</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), authorities);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="SecurityConfig-java"><a href="#SecurityConfig-java" class="headerlink" title="SecurityConfig.java"></a>SecurityConfig.java</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@EnableWebSecurity</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SecurityConfig</span> <span class="keyword">extends</span> <span class="title">WebSecurityConfigurerAdapter</span> </span>&#123;</span><br><span class="line">	</span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> PasswordEncoder <span class="title">passwordEncoder</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> BCryptPasswordEncoder();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> UserDetailsService <span class="title">userDetailsService</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> CustomUserDetailsService();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> AuthenticationProvider <span class="title">authenticationProvider</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        DaoAuthenticationProvider daoAuthenticationProvider = <span class="keyword">new</span> DaoAuthenticationProvider();</span><br><span class="line">        daoAuthenticationProvider.setUserDetailsService(userDetailsService());</span><br><span class="line">        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());</span><br><span class="line">        <span class="keyword">return</span> daoAuthenticationProvider;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">configure</span><span class="params">(AuthenticationManagerBuilder auth)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        auth.authenticationProvider(authenticationProvider());</span><br><span class="line">        auth.userDetailsService(userDetailsService());</span><br><span class="line">    &#125;</span><br><span class="line">        </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">configure</span><span class="params">(HttpSecurity http)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        http</span><br><span class="line">            .authorizeRequests()</span><br><span class="line">                .antMatchers(<span class="string">"/"</span>).permitAll()</span><br><span class="line">                .antMatchers(<span class="string">"/login"</span>).permitAll() <span class="comment">// 全部的人都可以嘗試登入</span></span><br><span class="line">                .antMatchers(<span class="string">"/users"</span>).hasAuthority(<span class="string">"ADMIN"</span>) <span class="comment">// 只有ADMIN權限可以觀看</span></span><br><span class="line">            .and()</span><br><span class="line">                .formLogin() <span class="comment">// 這邊如果沒有使用下面的設定，Spring會自行產生簡易的登入頁面</span></span><br><span class="line">                .loginPage(<span class="string">"/login"</span>) <span class="comment">// 登入頁面位置</span></span><br><span class="line">                .usernameParameter(<span class="string">"username"</span>) <span class="comment">// 表單帳號參數名稱</span></span><br><span class="line">                .passwordParameter(<span class="string">"password"</span>) <span class="comment">// 表單密碼參數名稱</span></span><br><span class="line">                .defaultSuccessUrl(<span class="string">"/"</span>) <span class="comment">// 登入成功後導至首頁</span></span><br><span class="line">                .permitAll()</span><br><span class="line">            .and()</span><br><span class="line">                .logout()</span><br><span class="line">                .logoutSuccessUrl(<span class="string">"/login?logout=true"</span>) <span class="comment">// 登出後跳轉至登入頁面</span></span><br><span class="line">                .invalidateHttpSession(<span class="keyword">true</span>) <span class="comment">// 使該Session無效</span></span><br><span class="line">                .permitAll()</span><br><span class="line">            .and()</span><br><span class="line">                .csrf() <span class="comment">// 使用csrf防禦機制</span></span><br><span class="line">            .and()</span><br><span class="line">                .sessionManagement() <span class="comment">// 管理Session</span></span><br><span class="line">                .maximumSessions(<span class="number">1</span>) <span class="comment">// 同時只能一個Session</span></span><br><span class="line">                .maxSessionsPreventsLogin(<span class="keyword">true</span>); <span class="comment">// 只能讓一個帳號存在一個Session</span></span><br><span class="line">        </span><br><span class="line">        http.exceptionHandling().accessDeniedPage(<span class="string">"/403"</span>); <span class="comment">// 將所有403頁面導向這裡</span></span><br><span class="line">    &#125;</span><br><span class="line">	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="Browser-View"><a href="#Browser-View" class="headerlink" title="Browser View"></a>Browser View</h1><p>結果就像這樣~~<br><img src="/2018/09/04/SpringMVC-猴子也學不會的系列文-5/bowser.view.png" width="600"></p>
+<h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h1><h2 id="Spring-Security-Authentication-with-a-Database-backed-UserDetailsService"><a href="#Spring-Security-Authentication-with-a-Database-backed-UserDetailsService" class="headerlink" title="Spring Security: Authentication with a Database-backed UserDetailsService"></a><a href="https://www.baeldung.com/spring-security-authentication-with-a-database" target="_blank" rel="noopener">Spring Security: Authentication with a Database-backed UserDetailsService</a></h2><h2 id="Spring-Security-5-Custom-UserDetailsService-example"><a href="#Spring-Security-5-Custom-UserDetailsService-example" class="headerlink" title="Spring Security 5 - Custom UserDetailsService example"></a><a href="https://www.boraji.com/spring-security-5-custom-userdetailsservice-example" target="_blank" rel="noopener">Spring Security 5 - Custom UserDetailsService example</a></h2>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/09/03/SpringMVC-猴子也學不會的系列文-4/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -782,149 +993,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/08/21/SpringMVC-猴子也學不會的系列文-1/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="AndyKyuo">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/me.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="軟體就是一個大坑">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/08/21/SpringMVC-猴子也學不會的系列文-1/" itemprop="url">SpringMVC. 猴子也學不會的系列文(1) - First SpringMVC</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">發表於</span>
-              
-              <time title="創建於" itemprop="dateCreated datePublished" datetime="2018-08-21T20:27:25+08:00">
-                2018-08-21
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="What-is-Spring"><a href="#What-is-Spring" class="headerlink" title="What is Spring ?"></a>What is Spring ?</h1><p>Spring是一個lightweight(輕量級)的framework(框架)，它可以想像是各種框架的集成，因為它可以支援許多種框架，例如Struts, Hibernate, Tapestry, EJB, JSF等等，它包含幾種模組，例如IOC, AOP, DAO, Context, ORM, WEB MVC等等，不過我們第一步需要先了解IOC(控制反轉)以及Dependency Injection(依賴注入)。</p>
-<h1 id="What-is-IOC、Dependency-Injection"><a href="#What-is-IOC、Dependency-Injection" class="headerlink" title="What is IOC、Dependency Injection ?"></a>What is IOC、Dependency Injection ?</h1><p>Spring容器實現了IOC，也是這整個框架的核心所在，容器將會創建、管理物件直到銷毀，並使用Dependency Injection(依賴注入)來管理這些物件(Bean)，然而Spring提供這兩種IOC容器，分別為BeanFactory、ApplicationContext，這兩部分的差別，後將依序簡單的探討。</p>
-<h2 id="BeanFactory"><a href="#BeanFactory" class="headerlink" title="BeanFactory"></a>BeanFactory</h2><p>這是Spring提供最簡單的IOC容器，是無法使用大部分模組的，例如AOP、Integration、Web等等，因此僅適合在有限資源的環境下使用，通常用於測試與非生產環境。</p>
-<h2 id="ApplicationContext"><a href="#ApplicationContext" class="headerlink" title="ApplicationContext"></a>ApplicationContext</h2><p>大神也推薦使用這個IOC容器，該容器繼承BeanFactory並提供了更多的功能，因此我們可以方便的使用各種模組，來幫助開發。</p>
-<h1 id="First-SpringMVC"><a href="#First-SpringMVC" class="headerlink" title="First SpringMVC"></a>First SpringMVC</h1><p>進入正題囉!! 首先帶大家看看SpringMVC應有的檔案架構。</p>
-<h2 id="目錄"><a href="#目錄" class="headerlink" title="目錄"></a>目錄</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">├─build.gradle</span><br><span class="line">└─src</span><br><span class="line">    ├─main</span><br><span class="line">    │  ├─java</span><br><span class="line">    │  │  └─com</span><br><span class="line">    │  │      └─spring</span><br><span class="line">    │  │          └─example</span><br><span class="line">    │  │              ├─config</span><br><span class="line">    │  │              │  ├─WebConfiguration.java</span><br><span class="line">    │  │              │  └─WebServletInitializer.java</span><br><span class="line">    │  │              └─controller</span><br><span class="line">    │  │                 └─HomeController.java</span><br><span class="line">    │  ├─resources</span><br><span class="line">    │  │  └─log4j2.xml</span><br><span class="line">    |  └─webapp</span><br><span class="line">    |     └─WEB-INF</span><br><span class="line">    |          └─views</span><br><span class="line">    |             └─home.jsp</span><br></pre></td></tr></table></figure>
-<h2 id="Gradle"><a href="#Gradle" class="headerlink" title="Gradle"></a>Gradle</h2><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">apply <span class="string">plugin:</span> <span class="string">'java'</span></span><br><span class="line">apply <span class="string">plugin:</span> <span class="string">'war'</span></span><br><span class="line">apply <span class="string">from:</span> <span class="string">'https://raw.github.com/akhikhl/gretty/master/pluginScripts/gretty.plugin'</span></span><br><span class="line"></span><br><span class="line">repositories &#123;</span><br><span class="line">    mavenCentral()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">dependencies &#123;</span><br><span class="line">    <span class="comment">// Spring</span></span><br><span class="line">    <span class="keyword">def</span> springVersion = <span class="string">'5.0.1.RELEASE'</span></span><br><span class="line">    compile <span class="string">group:</span> <span class="string">'org.springframework'</span>, <span class="string">name:</span> <span class="string">'spring-webmvc'</span>, <span class="string">version:</span> <span class="string">"$&#123;springVersion&#125;"</span></span><br><span class="line"> </span><br><span class="line">    compile <span class="string">group:</span> <span class="string">'javax.servlet'</span>, <span class="string">name:</span> <span class="string">'jstl'</span>, <span class="string">version:</span> <span class="string">'1.2'</span></span><br><span class="line">    providedCompile <span class="string">'javax.servlet:servlet-api:2.5'</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// Log4j2</span></span><br><span class="line">    <span class="keyword">def</span> log4jVersion = <span class="string">'2.8.2'</span></span><br><span class="line">    compile <span class="string">group:</span> <span class="string">'org.apache.logging.log4j'</span>, <span class="string">name:</span> <span class="string">'log4j-core'</span>, <span class="string">version:</span> <span class="string">"$&#123;log4jVersion&#125;"</span></span><br><span class="line">    compile <span class="string">group:</span> <span class="string">'org.apache.logging.log4j'</span>, <span class="string">name:</span> <span class="string">'log4j-api'</span>, <span class="string">version:</span> <span class="string">"$&#123;log4jVersion&#125;"</span></span><br><span class="line">    compile <span class="string">group:</span> <span class="string">'org.apache.logging.log4j'</span>, <span class="string">name:</span> <span class="string">'log4j-jcl'</span>, <span class="string">version:</span> <span class="string">"$&#123;log4jVersion&#125;"</span></span><br><span class="line">    </span><br><span class="line">    testImplementation <span class="string">'junit:junit:4.12'</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">gretty &#123;</span><br><span class="line">    httpPort = <span class="number">8080</span></span><br><span class="line">    contextPath = <span class="string">'spring.example'</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="XML"><a href="#XML" class="headerlink" title="XML"></a>XML</h2><h3 id="log4j2-xml"><a href="#log4j2-xml" class="headerlink" title="log4j2.xml"></a>log4j2.xml</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span><br><span class="line"><span class="tag">&lt;<span class="name">configuration</span> <span class="attr">status</span>=<span class="string">"OFF"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">appenders</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">Console</span> <span class="attr">name</span>=<span class="string">"Console"</span> <span class="attr">target</span>=<span class="string">"SYSTEM_OUT"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">PatternLayout</span> <span class="attr">pattern</span>=<span class="string">"%d&#123;HH:mm:ss.SSS&#125; [%t] %-5level %logger&#123;36&#125; - %msg%n"</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">Console</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">appenders</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">loggers</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">root</span> <span class="attr">level</span>=<span class="string">"trace"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">appender-ref</span> <span class="attr">ref</span>=<span class="string">"Console"</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">loggers</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><h3 id="WebConfiguration-java"><a href="#WebConfiguration-java" class="headerlink" title="WebConfiguration.java"></a>WebConfiguration.java</h3><p>在該部份我們需要配置靜態資源位置以及新增一個ViewResolver實例，為何需要配置ViewResolver，主因當Controller返回ModelAndView後，DispatcherServlet會交由ViewResolver物件來作View層的相關解析，所以需要設置ViewResolver實例。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Bean;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.ComponentScan;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Configuration;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.servlet.config.annotation.EnableWebMvc;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.servlet.config.annotation.WebMvcConfigurer;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.servlet.view.InternalResourceViewResolver;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.servlet.view.JstlView;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@EnableWebMvc</span></span><br><span class="line"><span class="meta">@ComponentScan</span>(<span class="string">"com.spring.example.**"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WebConfiguration</span> <span class="keyword">implements</span> <span class="title">WebMvcConfigurer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> InternalResourceViewResolver <span class="title">viewResolver</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        InternalResourceViewResolver viewResolver = <span class="keyword">new</span> InternalResourceViewResolver();</span><br><span class="line">        viewResolver.setViewClass(JstlView.class);</span><br><span class="line">        viewResolver.setPrefix(<span class="string">"/WEB-INF/views/"</span>);</span><br><span class="line">        viewResolver.setSuffix(<span class="string">".jsp"</span>);</span><br><span class="line">        <span class="keyword">return</span> viewResolver;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addResourceHandlers</span><span class="params">(ResourceHandlerRegistry registry)</span> </span>&#123;</span><br><span class="line">        registry.addResourceHandler(<span class="string">"/resources/**"</span>).addResourceLocations(<span class="string">"/resources/"</span>); </span><br><span class="line">    &#125;</span><br><span class="line">	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h3 id="WebServletInitializer-java"><a href="#WebServletInitializer-java" class="headerlink" title="WebServletInitializer.java"></a>WebServletInitializer.java</h3><p>AbstractAnnotationConfigDispatcherServletInitializer負責以下工作</p>
-<ol>
-<li>配置DispatcherServlet</li>
-<li>初始化Spring MVC容器</li>
-<li>Spring容器</li>
-</ol>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WebServletInitializer</span> <span class="keyword">extends</span> <span class="title">AbstractAnnotationConfigDispatcherServletInitializer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> Class&lt;?&gt;[] getRootConfigClasses() &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> Class&lt;?&gt;[] getServletConfigClasses() &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> Class[] &#123; WebConfiguration.class &#125;;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> String[] getServletMappings() &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> String[] &#123; <span class="string">"/"</span> &#125;;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="HomeController-java"><a href="#HomeController-java" class="headerlink" title="HomeController.java"></a>HomeController.java</h3><p>當為主頁的時候輸入home.jsp<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Controller;</span><br><span class="line"><span class="keyword">import</span> org.springframework.ui.ModelMap;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.RequestMapping;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Controller</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HomeController</span> </span>&#123;</span><br><span class="line">	</span><br><span class="line">    <span class="meta">@RequestMapping</span>(<span class="string">"/"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">home</span><span class="params">(ModelMap model)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 傳送messages至JSP</span></span><br><span class="line">        model.addAttribute(<span class="string">"messages"</span>, <span class="string">"Spring MVC Example"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"home"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h2 id="JSP"><a href="#JSP" class="headerlink" title="JSP"></a>JSP</h2><h3 id="home-jsp"><a href="#home-jsp" class="headerlink" title="home.jsp"></a>home.jsp</h3><p>由上方HomeController可以看出，我們經由Model傳送messages訊息給JSP，因此我們可以於JSP檔案中將該字串取得出來。<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&lt;%@ page language=<span class="string">"java"</span> contentType=<span class="string">"text/html; charset=ISO-8859-1"</span> pageEncoding=<span class="string">"ISO-8859-1"</span>%&gt;</span><br><span class="line">&lt;!DOCTYPE html PUBLIC <span class="string">"-//W3C//DTD HTML 4.01 Transitional//EN"</span> <span class="string">"http://www.w3.org/TR/html4/loose.dtd"</span>&gt;</span><br><span class="line">&lt;html&gt;</span><br><span class="line">    &lt;head&gt;</span><br><span class="line">        &lt;meta http-equiv=<span class="string">"Content-Type"</span> content=<span class="string">"text/html; charset=ISO-8859-1"</span>&gt;</span><br><span class="line">        &lt;title&gt;Welcome&lt;/title&gt;</span><br><span class="line">    &lt;/head&gt;</span><br><span class="line">    &lt;body&gt;</span><br><span class="line">        &lt;h1&gt;$&#123;messages&#125;&lt;/h1&gt; &lt;!-- 取得messages --&gt;</span><br><span class="line">    &lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure></p>
-<h2 id="Browser-View"><a href="#Browser-View" class="headerlink" title="Browser View"></a>Browser View</h2><p>接下來我們於瀏覽器中輸入 <a href="http://localhost:8080/spring.example" target="_blank" rel="noopener">http://localhost:8080/spring.example</a> 即可看到下面的畫面<br><img src="/2018/08/21/SpringMVC-猴子也學不會的系列文-1/bowser.veiw.png" width="600"></p>
-<h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h1><h2 id="Spring-Tutorial"><a href="#Spring-Tutorial" class="headerlink" title="Spring Tutorial"></a><a href="https://www.javatpoint.com/spring-tutorial" target="_blank" rel="noopener">Spring Tutorial</a></h2><h2 id="開源框架-Spring-Gossip"><a href="#開源框架-Spring-Gossip" class="headerlink" title="開源框架: Spring Gossip"></a><a href="https://openhome.cc/Gossip/SpringGossip/" target="_blank" rel="noopener">開源框架: Spring Gossip</a></h2><h2 id="极客学院-IoC-容器"><a href="#极客学院-IoC-容器" class="headerlink" title="极客学院 - IoC 容器"></a><a href="http://wiki.jikexueyuan.com/project/spring/ioc-containers.html" target="_blank" rel="noopener">极客学院 - IoC 容器</a></h2>
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -974,7 +1047,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">25</span>
+                  <span class="site-state-item-count">26</span>
                   <span class="site-state-item-name">文章</span>
                 </a>
               </div>

@@ -249,6 +249,129 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2015/12/21/Android-Export-from-sqlite-to-excel/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="AndyKyuo">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/me.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="軟體就是一個大坑">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2015/12/21/Android-Export-from-sqlite-to-excel/" itemprop="url">Android. Export from sqlite to excel</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2015-12-21T10:25:00+08:00">
+                2015-12-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>最近剛好有學習到如何將SQLite的資料拉出來建立一個Excel在手機上。</p>
+<h1 id="下載Jexcel-jar"><a href="#下載Jexcel-jar" class="headerlink" title="下載Jexcel.jar"></a>下載<a href="http://www.java2s.com/Code/Jar/j/Downloadjxljar.htm" target="_blank" rel="noopener">Jexcel.jar</a></h1><h1 id="建立AsyncTask"><a href="#建立AsyncTask" class="headerlink" title="建立AsyncTask"></a>建立AsyncTask</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ExportDatabaseExcelTask</span> <span class="keyword">extends</span> <span class="title">AsyncTask</span>&lt;<span class="title">String</span>, <span class="title">Void</span>, <span class="title">Boolean</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Context context;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 這個可以快速顯示一個Progress</span></span><br><span class="line">    <span class="keyword">private</span> ProgressDialog progressDialog; </span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ExportDatabaseExcelTask</span><span class="params">(Context context)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.context = context;</span><br><span class="line">        progressDialog = <span class="keyword">new</span> ProgressDialog(context);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onPreExecute</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.onPreExecute();</span><br><span class="line">        progressDialog.setMessage(<span class="string">"正在匯出Excel檔"</span>);</span><br><span class="line">        progressDialog.show();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onPostExecute</span><span class="params">(Boolean aBoolean)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.onPostExecute(aBoolean);</span><br><span class="line">        <span class="keyword">if</span>(progressDialog.isShowing())</span><br><span class="line">            progressDialog.dismiss();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(!aBoolean)</span><br><span class="line">            Toast.makeText(context, <span class="string">"匯出失敗"</span>, Toast.LENGTH_SHORT).show();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> Boolean <span class="title">doInBackground</span><span class="params">(String... params)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 創立Excel的檔名</span></span><br><span class="line">        String fileName = <span class="string">"Test"</span> + <span class="string">".xls"</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 選擇要匯出的Table</span></span><br><span class="line">        SQLiteManager sqLiteManager = <span class="keyword">new</span> SQLiteManager(context);</span><br><span class="line">        SQLiteDatabase db = sqLiteManager.getReadableDatabase();</span><br><span class="line">        Cursor cursor = db.rawQuery(<span class="string">"SELECT * FROM "</span> + CurrentAccountData.getMoneyTableName(), <span class="keyword">null</span>);</span><br><span class="line">       </span><br><span class="line">        <span class="comment">// 將會在內部空間內建立一個資料夾</span></span><br><span class="line">        File exportDir = <span class="keyword">new</span> File(Environment.getExternalStorageDirectory().getPath(), <span class="string">"TestExport"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (!exportDir.exists())</span><br><span class="line">            exportDir.mkdirs();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 在TestExport下創建一個檔案</span></span><br><span class="line">        File file = <span class="keyword">new</span> File(exportDir, fileName);</span><br><span class="line">        </span><br><span class="line">        /設定輸出相關格式</span><br><span class="line">        WorkbookSettings wbSettings = <span class="keyword">new</span> WorkbookSettings();</span><br><span class="line">        wbSettings.setLocale(<span class="keyword">new</span> Locale(<span class="string">"en"</span>, <span class="string">"EN"</span>));</span><br><span class="line">        WritableWorkbook workbook;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 創立一個Excel檔</span></span><br><span class="line">            workbook = Workbook.createWorkbook(file, wbSettings);</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 建立分頁</span></span><br><span class="line">            WritableSheet sheet = workbook.createSheet(CurrentAccountData.getAccountName(), <span class="number">0</span>);</span><br><span class="line">            <span class="comment">/**</span></span><br><span class="line"><span class="comment">            * 如果要建立第二分頁就會像 workbook.createSheet(CurrentAccountData.getAccountName(), 1);</span></span><br><span class="line"><span class="comment">            */</span></span><br><span class="line"></span><br><span class="line">            <span class="comment">//先建立我們Excel的標題</span></span><br><span class="line">            sheet.addCell(<span class="keyword">new</span> Label(<span class="number">0</span>, <span class="number">0</span>, <span class="string">"學號"</span>));</span><br><span class="line">            sheet.addCell(<span class="keyword">new</span> Label(<span class="number">1</span>, <span class="number">0</span>, <span class="string">"姓名"</span>));</span><br><span class="line"></span><br><span class="line">            <span class="comment">//開始放入表的資料，這邊請都用getString()</span></span><br><span class="line">            <span class="keyword">if</span> (cursor.moveToFirst()) &#123;</span><br><span class="line">                <span class="keyword">do</span> &#123;</span><br><span class="line">                    <span class="keyword">int</span> i = cursor.getPosition() + <span class="number">1</span>;</span><br><span class="line">                    sheet.addCell(<span class="keyword">new</span> Label(<span class="number">0</span>, i, cursor.getString(<span class="number">0</span>)));</span><br><span class="line">                    sheet.addCell(<span class="keyword">new</span> Label(<span class="number">1</span>, i, cursor.getString(<span class="number">1</span>)));</span><br><span class="line">                &#125; </span><br><span class="line">                <span class="keyword">while</span> (cursor.moveToNext());</span><br><span class="line">            &#125;</span><br><span class="line">            cursor.close();</span><br><span class="line">            workbook.write();</span><br><span class="line">            workbook.close();</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;  <span class="keyword">catch</span> (RowsExceededException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (WriteException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Done！<br>其實不管是Csv還是Excel最終都還是得將Table的資料一一取出來，然後再使用迴圈建立資料，因此使用AsnyTask是有其道理的，有人會說怎麼不使用Thread、Handler，其實效果大同小異。</p>
+<p>但AsnyTask是為了Android而產生的，它在Android比上述兩個速度更快，美中不足的是沒辦法像Thread可以運算非常大量的資料。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2015/11/19/Android-MVP的簡單介紹與使用/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -767,135 +890,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2015/08/08/Android-RecyclerView-ItemAnimator簡單示範/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="AndyKyuo">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/me.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="軟體就是一個大坑">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2015/08/08/Android-RecyclerView-ItemAnimator簡單示範/" itemprop="url">Android. RecyclerView ItemAnimator 簡單示範</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">發表於</span>
-              
-              <time title="創建於" itemprop="dateCreated datePublished" datetime="2015-08-08T06:08:00+08:00">
-                2015-08-08
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>目前在GitHub找到的資源，內部大多是使用DefaultItemAnimator.java(默認動畫程式碼)，並且做修改，因為它非常的好用，可以為您省去許多時間。</p>
-<p>如果想要使用動畫就像下面那行程式碼就好了。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">recyclerView.setItemAnimator(<span class="keyword">new</span> DefaultItemAnimator());</span><br></pre></td></tr></table></figure></p>
-<p>當然也有可能會是SlideInTop、OvershootInLeft、ScaleIn等等的動畫，但記住，這些都是需要自行製作的。</p>
-<h1 id="Video"><a href="#Video" class="headerlink" title="Video"></a>Video</h1><p><a href="https://youtu.be/3Y9oEKV9h4w" target="_blank" rel="noopener">https://youtu.be/3Y9oEKV9h4w</a><br><a href="https://youtu.be/3Y9oEKV9h4w" target="_blank" rel="noopener"><img src="https://lh3.googleusercontent.com/kaAu9WJ9stE3X9ta0HaUozhLK3QJ57ipXo8_ipKuIjg=w852-h512-no" alt="Video"></a></p>
-<h1 id="Reference-Sources"><a href="#Reference-Sources" class="headerlink" title="Reference Sources"></a>Reference Sources</h1><p><a href="https://github.com/wasabeef/recyclerview-animators" target="_blank" rel="noopener">wasabeef/recyclerview-animators</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/4/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span>
+    <a class="extend prev" rel="prev" href="/page/4/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><a class="extend next" rel="next" href="/page/6/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -945,7 +944,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">25</span>
+                  <span class="site-state-item-count">26</span>
                   <span class="site-state-item-name">文章</span>
                 </a>
               </div>

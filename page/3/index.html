@@ -249,6 +249,131 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/04/24/Android-SpriteImage介紹/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="AndyKyuo">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/me.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="軟體就是一個大坑">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2016/04/24/Android-SpriteImage介紹/" itemprop="url">Android. SpriteImage介紹</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2016-04-24T13:44:28+08:00">
+                2016-04-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>有些人常問我，怎一天到晚都在寫程式?</p>
+<p>TMD肥宅我覺得還是進入主體，牢騷沒人要聽啦！看看上次發文4/1，似乎今天有點久了，最近都在修改MyChart以及製作履歷表，剛好這次履歷表有用到SpriteImage，這種東西通常都用在遊戲上面。</p>
+<p>如果製作2D遊戲的人可能會常看到以下這種圖片<br><img src="/2016/03/01/Android-SpriteImage介紹/test2.png" width="600"><br>(圖片資源取自於<a href="http://www.gameart2d.com/freebies.html" target="_blank" rel="noopener">Game 2D Art</a>)</p>
+<p>為的就是減少效能使用，我們把一個連續動作放在一張大圖內，使用程式碼，裁減我們所需要的部分即可，這樣我們就不用一次讀取多張圖片。</p>
+<p>因為我這邊已經有自己寫好的類別，沒意外直接套用即可，所以就直接打上來</p>
+<h1 id="主類別"><a href="#主類別" class="headerlink" title="主類別"></a>主類別</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SpriteAnimation</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> Context context;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> Rect bitmapRect;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">long</span> lastFrameChangeTime = <span class="number">0</span>; <span class="comment">//累計時間</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">long</span> frameLengthInMilliseconds = <span class="number">100</span>; <span class="comment">//更新速度</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * 對圖片預算，垂直與水平的框架都要計算</span></span><br><span class="line"><span class="comment">    * countFrame 為所有框架的數量</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">int</span> countHorizontalFrame = <span class="number">0</span>, countVerticalFrame = <span class="number">0</span>, countFrame = <span class="number">0</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * 目前運行的框架位置</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">int</span> currentHorizontalFrame = <span class="number">0</span>, currentVerticalFrame = <span class="number">0</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * 裁減的大小</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">int</span> frameWidth = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">int</span> frameHeight = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> OnUpdateListener onUpdateListener;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">SpriteAnimation</span><span class="params">(<span class="keyword">long</span> frameLengthInMilliseconds, Rect bitmapRect, <span class="keyword">int</span> frameWidth, <span class="keyword">int</span> frameHeight, <span class="keyword">int</span> countFrame)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.frameLengthInMilliseconds = frameLengthInMilliseconds;</span><br><span class="line">        <span class="keyword">this</span>.bitmapRect = bitmapRect;</span><br><span class="line">        <span class="keyword">this</span>.frameWidth = frameWidth;</span><br><span class="line">        <span class="keyword">this</span>.frameHeight = frameHeight;</span><br><span class="line">        <span class="keyword">this</span>.countFrame = countFrame;</span><br><span class="line"></span><br><span class="line">        countHorizontalFrame = bitmapRect.width() / frameWidth;</span><br><span class="line">        countVerticalFrame = bitmapRect.height() / frameHeight;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> animateCount = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">start</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">long</span> time  = System.currentTimeMillis();</span><br><span class="line">        <span class="keyword">if</span> ( time &gt; lastFrameChangeTime + frameLengthInMilliseconds) &#123;</span><br><span class="line">            lastFrameChangeTime = time;</span><br><span class="line">            currentHorizontalFrame++;</span><br><span class="line">            <span class="keyword">if</span> (currentHorizontalFrame &gt;= countHorizontalFrame) &#123;</span><br><span class="line">                currentHorizontalFrame = <span class="number">0</span>;</span><br><span class="line">                currentVerticalFrame++;</span><br><span class="line">                <span class="keyword">if</span>(currentVerticalFrame &gt;= countVerticalFrame)</span><br><span class="line">                    currentVerticalFrame = <span class="number">0</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            animateCount++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(onUpdateListener != <span class="keyword">null</span>) &#123;</span><br><span class="line">            onUpdateListener.onUpdate(currentHorizontalFrame, currentVerticalFrame);</span><br><span class="line">            <span class="keyword">if</span>(animateCount &gt;= countFrame) &#123;</span><br><span class="line">                currentVerticalFrame = <span class="number">0</span>;</span><br><span class="line">                currentHorizontalFrame = <span class="number">0</span>;</span><br><span class="line">                animateCount = <span class="number">0</span>;</span><br><span class="line">                onUpdateListener.end();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">OnUpdateListener</span> </span>&#123;</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">onUpdate</span><span class="params">(<span class="keyword">int</span> currentHorizontalFrame, <span class="keyword">int</span> currentVerticalFrame)</span></span>;</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">end</span><span class="params">()</span></span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setOnUpdateListener</span><span class="params">(OnUpdateListener onUpdateListener)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.onUpdateListener = onUpdateListener;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getFrameHeight</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> frameHeight;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getFrameWidth</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> frameWidth;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getCountFrame</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> countFrame;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">mSpriteAnimation = <span class="keyword">new</span> SpriteAnimation(<span class="number">100</span>, </span><br><span class="line">                    <span class="keyword">new</span> Rect(<span class="number">0</span>, <span class="number">0</span>, bitmap.getWidth(), bitmap.getHeight()), <span class="number">192</span>, <span class="number">192</span>, <span class="number">10</span>);</span><br><span class="line">mSpriteAnimation.setOnUpdateListener(onUpdateListener);</span><br><span class="line">mSpriteAnimation.start();</span><br><span class="line"><span class="keyword">private</span> SpriteAnimation.OnUpdateListener onUpdateListener = <span class="keyword">new</span> SpriteAnimation.OnUpdateListener() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onUpdate</span><span class="params">(<span class="keyword">int</span> currentHorizontalFrame, <span class="keyword">int</span> currentVerticalFrame)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> left = currentHorizontalFrame * mSpriteAnimation.getFrameWidth();</span><br><span class="line">        <span class="keyword">int</span> right = left + mSpriteAnimation.getFrameWidth();</span><br><span class="line">        <span class="keyword">int</span> top = currentVerticalFrame * mSpriteAnimation.getFrameHeight();</span><br><span class="line">        <span class="keyword">int</span> bottom = top + mSpriteAnimation.getFrameHeight();</span><br><span class="line">        srcRect.set(left, top, right, bottom); <span class="comment">//更新剪裁位置</span></span><br><span class="line">        canvas.drawBitmap(runBitmap, srcRect, dstRect, <span class="keyword">null</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">end</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/04/01/Android-View的水平與慣性移動/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -737,138 +862,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/01/30/Android-自製剪裁圖片元件-CropImageView/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="AndyKyuo">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/me.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="軟體就是一個大坑">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2016/01/30/Android-自製剪裁圖片元件-CropImageView/" itemprop="url">Android. 自製剪裁圖片元件 CropImageView</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">發表於</span>
-              
-              <time title="創建於" itemprop="dateCreated datePublished" datetime="2016-01-30T14:24:16+08:00">
-                2016-01-30
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>這次分享簡單的剪裁圖片方式，我還沒做成Library，還滿懶惰的…((被踹飛</p>
-<p>大家可以參考參考，程式碼方面不難，反正就一堆 ? : if else 的判定。</p>
-<p>不過這次做起來有點瑕疵，在剪裁時候，有些許的不準確，目前判斷是因為Bitmap大小與剪裁不符合，大家可能都會想說，不是用Canvas去畫Bitmap嗎? No no ~ 我盡量不去使用Canvas去畫Bitmap，每次更新時都得在畫一次Bitmap，這是多麼恐怖的事情，你會非常Lag，效能之差，所以我直接使用ImageView.setImageBitmap。</p>
-<p>當然這並不算是我第一次製作此類，在先前的項目就有使用過，但並未認真去抓取一些Bug，所以有時候會有些錯誤。</p>
-<p>然而這次我將外圍、伸縮剪裁框等，小瑕疵都修改完畢，因此應該是不會發生瑕疵的問題了。</p>
-<p>大家有興趣可以去GitHub看看，記得不要看在學時期的Project就別看了，很丟臉…((淚灑</p>
-<p>P.S.也許有人說，我的藍點怎麼只有一個，應該四面八方都要有呀！ 我就是懶，我懶我驕傲!! ((又飛走</p>
-<p><img src="/2016/01/30/Android-自製剪裁圖片元件-CropImageView/Screenshot_2016-01-30-14-19-52.png" width="300"><br><img src="/2016/01/30/Android-自製剪裁圖片元件-CropImageView/Screenshot_2016-01-30-14-20-02.png" width="300"></p>
-<h1 id="GitHub-SourceCode"><a href="#GitHub-SourceCode" class="headerlink" title="GitHub SourceCode"></a><a href="https://github.com/Kuan-Wei-Kuo/PhotoDesign" target="_blank" rel="noopener">GitHub SourceCode</a></h1>
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/4/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><a class="extend next" rel="next" href="/page/4/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -918,7 +916,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">25</span>
+                  <span class="site-state-item-count">26</span>
                   <span class="site-state-item-name">文章</span>
                 </a>
               </div>
