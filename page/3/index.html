@@ -249,6 +249,136 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/06/20/Android-Bluetooth-API-偵測與搜尋/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="AndyKyuo">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/me.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="軟體就是一個大坑">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2016/06/20/Android-Bluetooth-API-偵測與搜尋/" itemprop="url">Android. Bluetooth API 偵測與搜尋</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2016-06-20T10:58:55+08:00">
+                2016-06-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>藍芽裝置，最初的步驟就是搜尋附近的裝置，這其實已經是早期的技術了，但到現在還是被廣泛使用，尤其對於物聯網來說，是非常方便的，因為目前幾乎每一支手機都有藍芽，如果產品想要串接藍芽，其實也不難，但規格要盡量一致才不會出現奇怪的問題。</p>
+<p>通常藍芽會直接在Activity中使用，因為我們需要搭配BroadcastReceiver來做接收搜尋等動作，因此我們需要在Activtiy中建立，當然如果想要使用OOP這種寫法也可以，也只是將Code的位置擺放去其他地方。</p>
+<h1 id="Step-1-加入Permission"><a href="#Step-1-加入Permission" class="headerlink" title="Step 1. 加入Permission"></a>Step 1. 加入Permission</h1><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">uses-permission</span> <span class="attr">android:name</span>=<span class="string">"android.permission.BLUETOOTH"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">uses-permission</span> <span class="attr">android:name</span>=<span class="string">"android.permission.BLUETOOTH_ADMIN"</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+<h1 id="Step-2-偵測手機是否支援藍芽"><a href="#Step-2-偵測手機是否支援藍芽" class="headerlink" title="Step 2. 偵測手機是否支援藍芽"></a>Step 2. 偵測手機是否支援藍芽</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();</span><br><span class="line"><span class="keyword">if</span>(mBluetoothAdapter == <span class="keyword">null</span>)</span><br><span class="line">    bluetoothList.setText(<span class="string">"您的裝置沒有支援藍芽"</span>);</span><br></pre></td></tr></table></figure>
+<p>BluetoothAdapter我們是不需要Intance的，因為這是早已經存在的東西，手機本身就帶有Intance的BluetoothAdapter，當然很簡單的，我們如果是NULL的，很明顯裝置並沒有藍芽。</p>
+<h1 id="Step-3-查詢藍芽是否有開啟"><a href="#Step-3-查詢藍芽是否有開啟" class="headerlink" title="Step 3. 查詢藍芽是否有開啟"></a>Step 3. 查詢藍芽是否有開啟</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (!mBluetoothAdapter.isEnabled()) &#123;</span><br><span class="line">    Intent enableIntent = <span class="keyword">new</span> Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);</span><br><span class="line">    startActivityForResult(enableIntent, REQUEST_ENABLE_BT);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>當開啟藍芽界面並完成選擇動作時，ActivityForResult這個Method就會執行，也將會回傳REQUEST_CODE，讓開發者可以判斷。對了，這一段Code建議寫在onStart內，因為我們onCreate其實不太適合做這種動作，有疑問的可以在去看看Acivity週期。</p>
+<h1 id="Step-4-搜尋藍芽裝置"><a href="#Step-4-搜尋藍芽裝置" class="headerlink" title="Step 4. 搜尋藍芽裝置"></a>Step 4. 搜尋藍芽裝置</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (mBluetoothAdapter.isDiscovering())</span><br><span class="line">    mBluetoothAdapter.cancelDiscovery();</span><br><span class="line">mBluetoothAdapter.startDiscovery();</span><br></pre></td></tr></table></figure>
+<p>如果mBluetoothAdapter正在搜尋，但使用者又點了一次按鈕之類的，我們得取消查詢再次展開查詢的動作，不然可能會造成Loop的問題。</p>
+<h1 id="Step-5-接收藍芽裝置"><a href="#Step-5-接收藍芽裝置" class="headerlink" title="Step 5. 接收藍芽裝置"></a>Step 5. 接收藍芽裝置</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">IntentFilter filter = <span class="keyword">new</span> IntentFilter(BluetoothDevice.ACTION_FOUND);</span><br><span class="line"><span class="keyword">this</span>.registerReceiver(mReceiver, filter);</span><br><span class="line"></span><br><span class="line">filter = <span class="keyword">new</span> IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);</span><br><span class="line"><span class="keyword">this</span>.registerReceiver(mReceiver, filter);</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> ArrayAdapter&lt;String&gt; mNewDevicesArrayAdapter;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> BroadcastReceiver mReceiver = <span class="keyword">new</span> BroadcastReceiver() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onReceive</span><span class="params">(Context context, Intent intent)</span> </span>&#123;</span><br><span class="line">        String action = intent.getAction();</span><br><span class="line">        <span class="keyword">if</span> (BluetoothDevice.ACTION_FOUND.equals(action)) &#123;</span><br><span class="line">            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);</span><br><span class="line">            <span class="keyword">if</span> (device.getBondState() != BluetoothDevice.BOND_BONDED) &#123;</span><br><span class="line">                mNewDevicesArrayAdapter.add(device.getName() + <span class="string">"\n"</span> + device.getAddress());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) &#123;</span><br><span class="line">            <span class="keyword">if</span> (mNewDevicesArrayAdapter.getCount() == <span class="number">0</span>) &#123;</span><br><span class="line">                String noDevices = <span class="string">"No Devices"</span>;</span><br><span class="line">                mNewDevicesArrayAdapter.add(noDevices);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>BluetoothAdapter與BluetoothDevice有提供一些StringAction，但通常都使用FOUND與FINISHED兩種為多，在搭配Receiver接收每筆所查詢到的藍芽裝置。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/04/24/Android-SpriteImage介紹/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -737,131 +867,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/02/05/Android-使用ValueAnimator令顏色漸變轉換/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="AndyKyuo">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/me.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="軟體就是一個大坑">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2016/02/05/Android-使用ValueAnimator令顏色漸變轉換/" itemprop="url">Android. 使用ValueAnimator令顏色漸變轉換</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">發表於</span>
-              
-              <time title="創建於" itemprop="dateCreated datePublished" datetime="2016-02-05T09:22:46+08:00">
-                2016-02-05
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>大家好 大gay嚇 摳擬機挖，肥宅今天來分享一下如何取得連續漸變的顏色呢!?在目前手機的發達上，UX的顧慮也是特別重要，因此我們發現動作效果是不是更多了?</p>
-<p>沒錯，以前只要切來切去，現在就是要有一點順暢的切換，毫無為何感的fu，所以我們常常要使用一些動畫來輔助一下，因此，所以，也就是我們不可以不學習這東西囉！</p>
-<p>其實Value簡單的說就是數值，這個東東可以讓數值漸變，由0~100之類的慢慢轉換。</p>
-<p><img src="http://developer.android.com/images/animation/animation-nonlinear.png" width="600"><br>(圖片取自Google)</p>
-<p>然而我們的Value預設下是使用非線性的樣子去做變換，因此會像上圖那樣。<br>使用方法如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> colorFrom = Color.RED;</span><br><span class="line"><span class="keyword">int</span> colorTo = Color.BLUE;</span><br><span class="line">ValueAnimator colorAnimation = ValueAnimator.ofObject(<span class="keyword">new</span> ArgbEvaluator(), colorFrom, colorTo);</span><br><span class="line">colorAnimation.addUpdateListener(<span class="keyword">new</span> ValueAnimator.AnimatorUpdateListener() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onAnimationUpdate</span><span class="params">(ValueAnimator animator)</span> </span>&#123;</span><br><span class="line">        toolbar.setBackgroundColor((<span class="keyword">int</span>) animator.getAnimatedValue());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line">colorAnimation.setDuration(<span class="number">300</span>); <span class="comment">//設定速度</span></span><br><span class="line">colorAnimation.start();</span><br></pre></td></tr></table></figure></p>
-<p>要記得加入AnimatorUpdateListener監聽我們的動畫運行以及取得目前的Value，來達到漸變切換的感覺。Animator的應用實在是非常多，我想簡單介紹即可，如果要在更深入使用，就在說吧！</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -916,7 +921,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">26</span>
+                  <span class="site-state-item-count">27</span>
                   <span class="site-state-item-name">文章</span>
                 </a>
               </div>

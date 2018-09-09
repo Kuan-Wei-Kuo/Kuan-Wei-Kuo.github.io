@@ -377,6 +377,154 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/09/08/Redis-猴子也要努力看的Redis-Cluster-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="AndyKyuo">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/me.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="軟體就是一個大坑">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/09/08/Redis-猴子也要努力看的Redis-Cluster-1/" itemprop="url">Redis. 猴子也要努力看的Redis Cluster(1) - 簡易配置</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2018-09-08T11:26:16+08:00">
+                2018-09-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>今天來做功德，分享最近對RedisCluster的研究，希望各位猴子可以變猴王，然後終究還是吃香蕉喔!!</p>
+<h1 id="What-is-Redis-Cluster"><a href="#What-is-Redis-Cluster" class="headerlink" title="What is Redis Cluster ?"></a>What is Redis Cluster ?</h1><p>大家應該會了解Redis原先的一些特性，Cluster是他的重要功能之一，Redis中設計了HashSold，總共有16384個HashSolt，當一個Cluster建立時，將會把這些Solt分配到這些Node中，依照官方說明，若有3個node，各節點分配依序為：<br>Node 1: 0 ~ 5500<br>Node 2: 5501 ~ 11000<br>Node 3: 11001 ~ 16384<br>後續的事情，基本上Redis會自行決策要使用哪個Solt!!</p>
+<h1 id="Get-Started"><a href="#Get-Started" class="headerlink" title="Get Started"></a>Get Started</h1><h2 id="伺服器規劃"><a href="#伺服器規劃" class="headerlink" title="伺服器規劃"></a>伺服器規劃</h2><p>如果Cluster只在同一台機器使用，那也失去了意義。由於Redis Cluster Node最少要三個，Master 3個、Slave 3個，因此我打算使用三台虛擬機，每台配置兩個節點(Mater、Slave)。</p>
+<table>
+<thead>
+<tr>
+<th>Server Name</th>
+<th>IP </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Redis01</td>
+<td>192.168.180.3 </td>
+</tr>
+<tr>
+<td>Redis02</td>
+<td>192.168.180.4 </td>
+</tr>
+<tr>
+<td>Redis03</td>
+<td>192.168.180.5 </td>
+</tr>
+</tbody>
+</table>
+<h2 id="建置Redis環境"><a href="#建置Redis環境" class="headerlink" title="建置Redis環境"></a>建置Redis環境</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"># 由於我安裝的Centos都是最小配置，很東西套件是沒有的，這邊只裝上需要的套件</span><br><span class="line">sudo yum -y install wget gcc</span><br><span class="line"></span><br><span class="line"># 下載Redis，Redis每個實例可以當作是一個節點</span><br><span class="line">cd /home/andy/downloads</span><br><span class="line">wget http://download.redis.io/releases/redis-4.0.6.tar.gz</span><br><span class="line">tar xf redis-4.0.6.tar.gz</span><br><span class="line">cd redis-4.0.6</span><br><span class="line"></span><br><span class="line"># 安裝Redis，配置到/usr/local內</span><br><span class="line">sudo make MANIFESTO=jemalloc</span><br><span class="line">sudo make PREFIX=/usr/local/redis-4.0.6 install</span><br><span class="line"></span><br><span class="line"># 複製配置檔，下面可以看到我將redis.conf複製並且取名為&#123;10001, 10002&#125;，這就是我們稍後節點使用的PORT，這樣也比較好分辨。</span><br><span class="line">cd /usr/local/redis-4.0.6</span><br><span class="line">sudo mkdir conf</span><br><span class="line">cp /home/andy/downloads/redis-4.0.6/redis.conf /usr/local/redis-4.0.6/confi/10001.conf</span><br><span class="line">cp /home/andy/downloads/redis-4.0.6/redis.conf /usr/local/redis-4.0.6/confi/10002.</span><br><span class="line"></span><br><span class="line"># 配置redis資料位置</span><br><span class="line">sudo mkdir /data/redis/&#123;10001, 10002&#125; -p</span><br><span class="line"></span><br><span class="line"># 開始配置節點資訊</span><br><span class="line">cd /usr/local/redis-4.0.6/conf</span><br><span class="line">sudo vi 10001.conf</span><br><span class="line"># ---------------------------------------</span><br><span class="line">pidfile /var/run/redis-10001.pid</span><br><span class="line">logfile &quot;/data/redis/10001/10001.log&quot;</span><br><span class="line">bind 192.168.180.5</span><br><span class="line">port 10001</span><br><span class="line">daemonize yes </span><br><span class="line">dir /data/redis/10001</span><br><span class="line">cluster-enabled yes </span><br><span class="line">cluster-config-file nodes-10001.conf</span><br><span class="line"></span><br><span class="line">cd /usr/local/redis-4.0.6/conf</span><br><span class="line">sudo vi 10002.conf</span><br><span class="line"># ---------------------------------------</span><br><span class="line">pidfile /var/run/redis-10001.pid</span><br><span class="line">logfile &quot;/data/redis/10002/10002.log&quot;</span><br><span class="line">bind 192.168.180.5</span><br><span class="line">port 10002</span><br><span class="line">daemonize yes </span><br><span class="line">dir /data/redis/10002</span><br><span class="line">cluster-enabled yes </span><br><span class="line">cluster-config-file nodes-10002.conf</span><br><span class="line"></span><br><span class="line"># 把防火牆打開</span><br><span class="line">sudo firewall-cmd --zone=public --add-port=10001/tcp --permanent</span><br><span class="line">sudo firewall-cmd --zone=public --add-port=10002/tcp --permanent</span><br><span class="line">sudo firewall-cmd --reload</span><br><span class="line"></span><br><span class="line"># 由於我們使用redis-trib.rb來幫我們快速建置環境，但該指令是使用Ruby撰寫的，因此需要配置Ruby環境。</span><br><span class="line">sudo yum -y install ruby ruby-devel rubygems</span><br><span class="line">sudo gem install redis --version 3.2.1</span><br></pre></td></tr></table></figure>
+<h2 id="啟動Redis節點並設定Cluster"><a href="#啟動Redis節點並設定Cluster" class="headerlink" title="啟動Redis節點並設定Cluster"></a>啟動Redis節點並設定Cluster</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"># 依序打開Redsi節點(三台機器都要起來)</span><br><span class="line">sudo ./redis-server /usr/local/redis-4.0.6/conf/10001.conf</span><br><span class="line">sudo ./redis-server /usr/local/redis-4.0.6/conf/10002.conf</span><br><span class="line"></span><br><span class="line"># 於第一台192.168.180.3這一台打開Cluster機制</span><br><span class="line">cd /home/andy/downloads/redis-4.0.6/src</span><br><span class="line"></span><br><span class="line"># replicas 1 代表要建立三主三從得Cluster</span><br><span class="line">sudo ./redis-trib.rb create --replicas 1 192.168.180.3:10001 192.168.180.4:10001 192.168.180.5:10001 192.168.180.3:10002 192.168.180.4:10002 192.168.180.5:10002</span><br></pre></td></tr></table></figure>
+<p>將會出現下面訊息<br><img src="/2018/09/08/Redis-猴子也要努力看的Redis-Cluster-1/cluster.view.png" width="600"></p>
+<h2 id="測試節點運作"><a href="#測試節點運作" class="headerlink" title="測試節點運作"></a>測試節點運作</h2><p><img src="/2018/09/08/Redis-猴子也要努力看的Redis-Cluster-1/cluster.test.view.png" width="600"></p>
+<h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h1><h2 id="redis-cluster分布式集群安装部署"><a href="#redis-cluster分布式集群安装部署" class="headerlink" title="redis-cluster分布式集群安装部署"></a><a href="http://blog.51cto.com/wujianwei/2136271?source=dra" target="_blank" rel="noopener">redis-cluster分布式集群安装部署</a></h2><h2 id="設定Redis的master-slave複寫"><a href="#設定Redis的master-slave複寫" class="headerlink" title="設定Redis的master-slave複寫"></a><a href="https://dotblogs.com.tw/colinlin/2017/06/26/150937" target="_blank" rel="noopener">設定Redis的master-slave複寫</a></h2><h2 id="Redis備份、容災及高可用實戰"><a href="#Redis備份、容災及高可用實戰" class="headerlink" title="Redis備份、容災及高可用實戰"></a><a href="https://hk.saowen.com/a/4bb4a74d60fe69ee9fb0705b59243e7b67d1d877661ac145bf322d2a1f3e93c7" target="_blank" rel="noopener">Redis備份、容災及高可用實戰</a></h2>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/09/04/SpringMVC-猴子也學不會的系列文-5/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -853,146 +1001,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/08/29/SpringMVC-猴子也學不會的系列文-2/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="AndyKyuo">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/uploads/me.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="軟體就是一個大坑">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/08/29/SpringMVC-猴子也學不會的系列文-2/" itemprop="url">SpringMVC. 猴子也學不會的系列文(2) - Hibernate with Spring Data JPA</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">發表於</span>
-              
-              <time title="創建於" itemprop="dateCreated datePublished" datetime="2018-08-29T20:54:52+08:00">
-                2018-08-29
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="What-is-Hibernate"><a href="#What-is-Hibernate" class="headerlink" title="What is Hibernate ?"></a>What is Hibernate ?</h1><p>Hibernate擁有高效能與物件關聯的持久化的一款ORM，使用Java的人應該對於這款ORM一點都不陌生，在業界也是很常使用的。</p>
-<h1 id="What-is-ORM"><a href="#What-is-ORM" class="headerlink" title="What is ORM ?"></a>What is ORM ?</h1><p>ORM是什麼? 其實就是Object-Relational Mapping(ORM)，主要功能為轉換程式語言中的物件與資料庫的關聯關係。</p>
-<p>使用ORM還是比傳統JDBC方便的，如下:</p>
-<ol>
-<li>隱藏SQL邏輯，可以防止SQL-Injection。</li>
-<li>無須自己實現數據庫的操作。</li>
-<li>可以快速開發。</li>
-<li>構造數據化結構非常方便。</li>
-</ol>
-<p>但使用ORM卻會犧牲效能，它會自動管理與映射這些物件以及實現複雜查詢的困難等等，因此還是要看實務上來進行使用。</p>
-<h1 id="What-is-JPA"><a href="#What-is-JPA" class="headerlink" title="What is JPA"></a>What is JPA</h1><p>JPA是J2EE ORM的標準之一，JPA主要負責物件與資料表的映射，在JPA還沒出來前，聽說是很亂的，各種ORM各種自己的實現方式(小的我沒經歷過)。</p>
-<h1 id="What-is-Spring-Data-JPA"><a href="#What-is-Spring-Data-JPA" class="headerlink" title="What is Spring Data JPA"></a>What is Spring Data JPA</h1><p>Spring Data JPA主要基於Hibernate所開發的一款框架，可以讓我們更為方便的使用Hibernate與JPA。</p>
-<h1 id="Get-Started"><a href="#Get-Started" class="headerlink" title="Get Started"></a>Get Started</h1><p>在上一篇文章我們展示了簡單的SpringMVC範例，接下來我們將使用該範例進行一系列的修改。</p>
-<h2 id="目錄"><a href="#目錄" class="headerlink" title="目錄"></a>目錄</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">├─build.gradle</span><br><span class="line">└─src</span><br><span class="line">    ├─main</span><br><span class="line">    │  ├─java</span><br><span class="line">    │  │  └─com</span><br><span class="line">    │  │      └─spring</span><br><span class="line">    │  │          └─example</span><br><span class="line">    │  │              ├─config</span><br><span class="line">    │  │              │  ├─PersistenceJpaConfig.java</span><br><span class="line">    │  │              │  ├─WebConfiguration.java</span><br><span class="line">    │  │              │  └─WebServletInitializer.java</span><br><span class="line">    │  │              ├─controller</span><br><span class="line">    │  │              │  ├─HomeController.java</span><br><span class="line">    │  │              │  └─UserController.java</span><br><span class="line">    │  │              ├─entity</span><br><span class="line">    │  │              │  └─User.java    </span><br><span class="line">    │  │              └─repository</span><br><span class="line">    │  │                 └─UserRepository.java</span><br><span class="line">    │  ├─resources</span><br><span class="line">    │  │  └─log4j2.xml</span><br><span class="line">    |  └─webapp</span><br><span class="line">    |     └─WEB-INF</span><br><span class="line">    |          └─views</span><br><span class="line">    |             └─home.jsp</span><br></pre></td></tr></table></figure>
-<h2 id="Gradle"><a href="#Gradle" class="headerlink" title="Gradle"></a>Gradle</h2><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line">apply <span class="string">plugin:</span> <span class="string">'java'</span></span><br><span class="line">apply <span class="string">plugin:</span> <span class="string">'war'</span></span><br><span class="line">apply <span class="string">from:</span> <span class="string">'https://raw.github.com/akhikhl/gretty/master/pluginScripts/gretty.plugin'</span></span><br><span class="line"></span><br><span class="line">repositories &#123;</span><br><span class="line">    mavenCentral()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">dependencies &#123;</span><br><span class="line">    <span class="comment">// Spring</span></span><br><span class="line">    <span class="keyword">def</span> springVersion = <span class="string">'5.0.1.RELEASE'</span></span><br><span class="line">    compile <span class="string">group:</span> <span class="string">'org.springframework'</span>, <span class="string">name:</span> <span class="string">'spring-webmvc'</span>, <span class="string">version:</span> <span class="string">"$&#123;springVersion&#125;"</span></span><br><span class="line">    compile <span class="string">group:</span> <span class="string">'org.springframework'</span>, <span class="string">name:</span> <span class="string">'spring-orm'</span>, <span class="string">version:</span> <span class="string">"$&#123;springVersion&#125;"</span></span><br><span class="line"></span><br><span class="line">    compile <span class="string">group:</span> <span class="string">'javax.servlet'</span>, <span class="string">name:</span> <span class="string">'jstl'</span>, <span class="string">version:</span> <span class="string">'1.2'</span></span><br><span class="line">    providedCompile <span class="string">'javax.servlet:servlet-api:2.5'</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> springData = <span class="string">'2.0.0.RELEASE'</span></span><br><span class="line">    compile <span class="string">group:</span> <span class="string">'org.springframework.data'</span>, <span class="string">name:</span> <span class="string">'spring-data-jpa'</span>, <span class="string">version:</span> <span class="string">"$&#123;springData&#125;"</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//DBCP (Connection Pool)</span></span><br><span class="line">    compile <span class="string">group:</span> <span class="string">'org.apache.commons'</span>, <span class="string">name:</span> <span class="string">'commons-dbcp2'</span>, <span class="string">version:</span> <span class="string">"2.0"</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//Hibernate</span></span><br><span class="line">    <span class="keyword">def</span> hibernateVersion = <span class="string">'5.2.10.Final'</span></span><br><span class="line">    compile <span class="string">group:</span> <span class="string">'org.hibernate'</span>, <span class="string">name:</span> <span class="string">'hibernate-core'</span>, <span class="string">version:</span> <span class="string">"$&#123;hibernateVersion&#125;"</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> sqlVersion = <span class="string">'2.2.0'</span></span><br><span class="line">    compile <span class="string">group:</span> <span class="string">'org.mariadb.jdbc'</span>, <span class="string">name:</span> <span class="string">'mariadb-java-client'</span>, <span class="string">version:</span> <span class="string">"$&#123;sqlVersion&#125;"</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> jacksonCoreVersion = <span class="string">'2.9.4'</span></span><br><span class="line">    compile <span class="string">group:</span> <span class="string">'com.fasterxml.jackson.core'</span>, <span class="string">name:</span> <span class="string">'jackson-core'</span>, <span class="string">version:</span> <span class="string">"$&#123;jacksonCoreVersion&#125;"</span></span><br><span class="line">    compile <span class="string">group:</span> <span class="string">'com.fasterxml.jackson.core'</span>, <span class="string">name:</span> <span class="string">'jackson-databind'</span>, <span class="string">version:</span> <span class="string">"$&#123;jacksonCoreVersion&#125;"</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// Log4j2</span></span><br><span class="line">    <span class="keyword">def</span> log4jVersion = <span class="string">'2.8.2'</span></span><br><span class="line">    compile <span class="string">group:</span> <span class="string">'org.apache.logging.log4j'</span>, <span class="string">name:</span> <span class="string">'log4j-core'</span>, <span class="string">version:</span> <span class="string">"$&#123;log4jVersion&#125;"</span></span><br><span class="line">    compile <span class="string">group:</span> <span class="string">'org.apache.logging.log4j'</span>, <span class="string">name:</span> <span class="string">'log4j-api'</span>, <span class="string">version:</span> <span class="string">"$&#123;log4jVersion&#125;"</span></span><br><span class="line">    compile <span class="string">group:</span> <span class="string">'org.apache.logging.log4j'</span>, <span class="string">name:</span> <span class="string">'log4j-jcl'</span>, <span class="string">version:</span> <span class="string">"$&#123;log4jVersion&#125;"</span></span><br><span class="line"></span><br><span class="line">    testImplementation <span class="string">'junit:junit:4.12'</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">gretty &#123;</span><br><span class="line">    httpPort = <span class="number">8080</span></span><br><span class="line">    contextPath = <span class="string">'spring.example'</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h2><p>這次新增了PersistenceJpaConfig、Entity、Repository等三個部份的程式碼。</p>
-<h3 id="PersistenceJpaConfig-java"><a href="#PersistenceJpaConfig-java" class="headerlink" title="PersistenceJpaConfig.java"></a>PersistenceJpaConfig.java</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@EnableTransactionManagement</span></span><br><span class="line"><span class="meta">@EnableJpaRepositories</span>(basePackages = &#123;<span class="string">"com.spring.example.repository"</span>&#125;)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PersistenceJpaConfig</span> </span>&#123;</span><br><span class="line">	</span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> LocalContainerEntityManagerFactoryBean <span class="title">entityManagerFactory</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        LocalContainerEntityManagerFactoryBean entityManagerFactory = <span class="keyword">new</span> LocalContainerEntityManagerFactoryBean();</span><br><span class="line">        entityManagerFactory.setDataSource(dataSource());</span><br><span class="line">        entityManagerFactory.setPackagesToScan(<span class="string">"com.spring.example.entity"</span>);</span><br><span class="line">        </span><br><span class="line">        JpaVendorAdapter jpaVendorAdapter = <span class="keyword">new</span> HibernateJpaVendorAdapter();</span><br><span class="line">        entityManagerFactory.setJpaVendorAdapter(jpaVendorAdapter);</span><br><span class="line">        </span><br><span class="line">        Properties properties = <span class="keyword">new</span> Properties();</span><br><span class="line">        properties.setProperty(<span class="string">"hibernate.dialect"</span>, <span class="string">"org.hibernate.dialect.MariaDBDialect"</span>);</span><br><span class="line">        properties.setProperty(<span class="string">"hibernate.show_sql"</span>, <span class="string">"true"</span>);</span><br><span class="line">        entityManagerFactory.setJpaProperties(properties);</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">return</span> entityManagerFactory;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> BasicDataSource <span class="title">dataSource</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        BasicDataSource dataSource = <span class="keyword">new</span> BasicDataSource();</span><br><span class="line">        dataSource.setDriverClassName(<span class="string">"org.mariadb.jdbc.Driver"</span>);</span><br><span class="line">        dataSource.setUrl(<span class="string">"jdbc:mariadb://192.168.180.3:3306/test_db"</span>);</span><br><span class="line">        dataSource.setUsername( <span class="string">"andy"</span> );</span><br><span class="line">        dataSource.setPassword( <span class="string">"123456"</span> );</span><br><span class="line">            </span><br><span class="line">        <span class="keyword">return</span> dataSource;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> JpaTransactionManager <span class="title">transactionManager</span><span class="params">(EntityManagerFactory entityManagerFactory)</span> </span>&#123;</span><br><span class="line">        JpaTransactionManager transactionManager = <span class="keyword">new</span> JpaTransactionManager();</span><br><span class="line">        transactionManager.setEntityManagerFactory(entityManagerFactory);</span><br><span class="line">        <span class="keyword">return</span> transactionManager;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> PersistenceExceptionTranslationPostProcessor <span class="title">exceptionTranslation</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> PersistenceExceptionTranslationPostProcessor();</span><br><span class="line">    &#125;</span><br><span class="line">	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="User-java"><a href="#User-java" class="headerlink" title="User.java"></a>User.java</h3><p>這些@Entity、@Table等等，都是JPA本身的標準，用來對應資料表的關係。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Entity</span></span><br><span class="line"><span class="meta">@Table</span>(name = <span class="string">"users"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">User</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Id</span></span><br><span class="line">    <span class="meta">@Column</span>(name = <span class="string">"id"</span>)</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> id;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Column</span>(name = <span class="string">"account"</span>)</span><br><span class="line">    <span class="keyword">private</span> String account;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Column</span>(name = <span class="string">"nickname"</span>)</span><br><span class="line">    <span class="keyword">private</span> String nickname;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getId</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> id;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setId</span><span class="params">(<span class="keyword">int</span> id)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.id = id;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getAccount</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> account;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setAccount</span><span class="params">(String account)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.account = account;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getNickname</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> nickname;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setNickname</span><span class="params">(String nickname)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.nickname = nickname;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"User [id="</span> + id + <span class="string">", account="</span> + account + <span class="string">", nickname="</span> + nickname + <span class="string">"]"</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h3 id="UserRepository-java"><a href="#UserRepository-java" class="headerlink" title="UserRepository.java"></a>UserRepository.java</h3><p>JpaRepository是Spring Data JPA幫我們實現的功能，只要這樣做，基礎的CRUD就有了。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Repository</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">UserRepository</span> <span class="keyword">extends</span> <span class="title">JpaRepository</span>&lt;<span class="title">User</span>, <span class="title">Integer</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h3 id="UserController-java"><a href="#UserController-java" class="headerlink" title="UserController.java"></a>UserController.java</h3><p>接下來展示如何使用Repository取得資料，並且輸出成Restful API。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping</span>(<span class="string">"/users"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> UserRepository userRepository;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@RequestMapping</span>(method = RequestMethod.GET)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> List&lt;User&gt; <span class="title">getUsers</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> userRepository.findAll();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h2 id="Browser-View"><a href="#Browser-View" class="headerlink" title="Browser View"></a>Browser View</h2><p>接下來我們於瀏覽器中輸入 <a href="http://localhost:8080/spring.example/users" target="_blank" rel="noopener">http://localhost:8080/spring.example/users</a> 即可看到下面的畫面<br><img src="/2018/08/29/SpringMVC-猴子也學不會的系列文-2/bowser.view.png" width="600"></p>
-<h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h1><h2 id="Hibernate-Tutorial"><a href="#Hibernate-Tutorial" class="headerlink" title="Hibernate Tutorial"></a><a href="https://www.tutorialspoint.com/hibernate/orm_overview.htm" target="_blank" rel="noopener">Hibernate Tutorial</a></h2><h2 id="Spring-Data-JPA介紹與使用"><a href="#Spring-Data-JPA介紹與使用" class="headerlink" title="Spring Data JPA介紹與使用"></a><a href="https://www.jianshu.com/p/633922bb189f" target="_blank" rel="noopener">Spring Data JPA介紹與使用</a></h2>
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1047,7 +1055,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">26</span>
+                  <span class="site-state-item-count">27</span>
                   <span class="site-state-item-name">文章</span>
                 </a>
               </div>
